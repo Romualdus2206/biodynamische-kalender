@@ -2,813 +2,154 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Biodynamische kalender – tijdvakken</title>
-
-  <style>
-
-:root {
-  --fruit-bg: #ffe5e5;
-  --fruit-fg: #b30000;
-  --flower-bg: #e8f4ff;
-  --flower-fg: #0050a3;
-  --leaf-bg: #e6f7ea;
-  --leaf-fg: #1f7a3a;
-  --root-bg: #f3e7d9;
-  --root-fg: #8a4b12;
-}
-
-body {
-  font-family: system-ui, sans-serif;
-  margin: 20px;
-  background: #f7f7f7;
-  color: #222;
-  font-size: 16px;
-}
-
-h1 { margin-bottom: 0.2rem; display:flex; align-items:center; gap:6px; }
-#helpIcon { cursor:pointer; font-size:1.2rem; }
-.subtitle { color:#666; margin-bottom:1rem; }
-
-.controls {
-  display:flex;
-  gap:0.5rem;
-  flex-wrap:wrap;
-  margin-bottom:1rem;
-  align-items:center;
-}
-
-select, input, button {
-  padding:0.3rem 0.5rem;
-  font-size:0.9rem;
-}
-
-button { cursor:pointer; }
-
-/* --- Kalender container --- */
-.calendar {
-  background:#fff;
-  border-radius:8px;
-  padding:10px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.08);
-  overflow-y:auto;
-  max-height:80vh;
-}
-
-/* --- Week grid (desktop default: 7 kolommen) --- */
-.week {
-  display:grid;
-  grid-template-columns:repeat(7, 1fr);
-  gap:4px;
-  margin-bottom:8px;
-  min-width:900px;
-  overflow-x:auto;
-  padding-bottom:6px;
-}
-
-.weekdays {
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:4px;
-  min-width:900px;
-  margin-bottom:6px;
-}
-
-.weekdays div {
-  text-align:center;
-  font-size:0.8rem;
-  font-weight:600;
-  color:#666;
-  padding-bottom:4px;
-}
-
-/* --- Dagtegel --- */
-.day {
-  min-height:240px;
-  max-height:240px;
-  border-radius:6px;
-  padding:6px;
-  font-size:0.7rem;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  box-sizing:border-box;
-  cursor:pointer;
-  overflow:hidden;
-  position:relative;
-}
-
-.day.empty {
-  background:transparent;
-  border:none;
-  cursor:default;
-}
-
-.day-number {
-  font-weight:700;
-  font-size:0.95rem;
-  margin-bottom:2px;
-}
-
-.day-content {
-  font-size:0.7rem;
-  line-height:1.28;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  display:-webkit-box;
-  -webkit-line-clamp:14;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.day-weather {
-  font-size:0.7rem;
-  margin-bottom:2px;
-}
-
-.slot-block { margin-bottom:6px; }
-.slot-title { font-weight:600; margin-bottom:1px; }
-.slot-conclusion { margin-bottom:1px; }
-.slot-wines { margin-left:8px; }
-
-/* Kleuren */
-.fruit  { background:var(--fruit-bg); color:var(--fruit-fg); }
-.flower { background:var(--flower-bg); color:var(--flower-fg); }
-.leaf   { background:var(--leaf-bg); color:var(--leaf-fg); }
-.root   { background:var(--root-bg); color:var(--root-fg); }
-
-/* --- iPhone layout: 3 kolommen + min-width 200px + horizontale scroll per week --- */
-@media (max-width: 480px) {
-
-  .calendar {
-    overflow-y:scroll !important;
-  }
-
-  .weekdays {
-    grid-template-columns:repeat(3,1fr) !important;
-    min-width:650px !important;
-  }
-
-  .week {
-    grid-template-columns:repeat(3,1fr) !important;
-    min-width:650px !important;
-    overflow-x:scroll !important;
-  }
-
-  .day {
-    min-width:200px !important;
-    max-width:240px !important;
-    min-height:260px !important;
-  }
-
-  .day-content {
-    -webkit-line-clamp:12 !important;
-  }
-}
-
-  </style>
+  <title>Biodynamische kalender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>
-  Biodynamische kalender
-  <span id="helpIcon">ℹ️</span>
-</h1>
-<div class="subtitle">Met tijdvakken, weer, wijnadvies en flesadvies</div>
-
-<div class="controls">
-  <label>
-    Jaar:
-    <input type="number" id="yearInput" value="2025" min="1900" max="2100" />
-  </label>
-  <label>
-    Maand:
-    <select id="monthSelect">
-      <option value="0">Januari</option>
-      <option value="1">Februari</option>
-      <option value="2">Maart</option>
-      <option value="3">April</option>
-      <option value="4">Mei</option>
-      <option value="5">Juni</option>
-      <option value="6">Juli</option>
-      <option value="7">Augustus</option>
-      <option value="8">September</option>
-      <option value="9">Oktober</option>
-      <option value="10">November</option>
-      <option value="11">December</option>
-    </select>
-  </label>
-  <button id="renderBtn">Toon maand</button>
-  <button id="inventoryBtn">Wijnvoorraad beheren</button>
-</div>
-
-<div class="calendar">
-  <div class="weekdays">
-    <div>Ma</div><div>Di</div><div>Wo</div><div>Do</div><div>Vr</div><div>Za</div><div>Zo</div>
-  </div>
-  <div id="weeksContainer"></div>
-</div>
-
-<!-- Dagdetail popup -->
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle"></div>
-      <button class="modal-close" id="modalClose">&times;</button>
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Biodynamische kalender</h1>
+      <p class="subtitle">Tijdvakken, biodynamische dag en wijnadvies</p>
     </div>
-    <div class="modal-content">
-      <div class="modal-section-title">Weer & luchtdruk</div>
-      <div class="modal-text" id="modalWeather"></div>
-
-      <div class="modal-section-title">Tijdvakken & biodynamische dag</div>
-      <div class="slot-list" id="modalSlots"></div>
-
-      <div class="modal-section-title">Wijnadvies per tijdvak</div>
-      <div class="slot-list" id="modalAdvice"></div>
-
-      <div class="modal-section-title">Aanbevolen flessen per tijdvak</div>
-      <div class="slot-list" id="modalWines"></div>
+    <div class="topbar-right">
+      <button id="helpBtn" class="icon-btn" title="Uitleg">
+        ℹ️
+      </button>
+      <button id="inventoryBtn" class="primary-btn">
+        Wijnvoorraad beheren
+      </button>
     </div>
-  </div>
-</div>
+  </header>
 
-<!-- Help popup -->
-<div class="modal-backdrop" id="helpBackdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Uitleg van het wijnadvies</div>
-      <button class="modal-close" id="helpClose">&times;</button>
+  <section class="controls">
+    <label>
+      Jaar
+      <input type="number" id="yearInput" min="2000" max="2100" />
+    </label>
+
+    <label>
+      Maand
+      <select id="monthSelect">
+        <option value="0">Januari</option>
+        <option value="1">Februari</option>
+        <option value="2">Maart</option>
+        <option value="3">April</option>
+        <option value="4">Mei</option>
+        <option value="5">Juni</option>
+        <option value="6">Juli</option>
+        <option value="7">Augustus</option>
+        <option value="8">September</option>
+        <option value="9">Oktober</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+    </label>
+
+    <button id="renderBtn" class="primary-btn">Toon maand</button>
+  </section>
+
+  <main class="calendar-wrapper">
+    <div class="weekdays">
+      <div>Ma</div>
+      <div>Di</div>
+      <div>Wo</div>
+      <div>Do</div>
+      <div>Vr</div>
+      <div>Za</div>
+      <div>Zo</div>
     </div>
-    <div class="modal-content" style="font-size:0.85rem;line-height:1.4;">
-      <p><strong>Biodynamische dag</strong><br>
-      Vruchtendag → aromatische wijnen openen vaak mooier, fruit komt beter naar voren.<br>
-      Bloemdag → elegante, verfijnde wijnen tonen meer nuance en balans.<br>
-      Bladdag → frisse wijnen kunnen wat strakker of vlakker overkomen.<br>
-      Worteldag → tanninerijke wijnen kunnen strenger, droger en minder open smaken.</p>
+    <div id="weeksContainer"></div>
+  </main>
 
-      <p><strong>Tijdvakken</strong><br>
-      De maan schuift gedurende de dag door de sterrenbeelden. Daardoor kan een dag in twee duidelijk verschillende proefmomenten vallen, met een merkbaar verschil rond de overgangstijd.</p>
+  <!-- Dagdetail modal -->
+  <div class="backdrop" id="dayModalBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2 id="dayModalTitle"></h2>
+        <button class="icon-btn" id="dayModalClose">✕</button>
+      </header>
+      <div class="modal-body">
+        <h3>Weer & luchtdruk</h3>
+        <p id="dayModalWeather"></p>
 
-      <p><strong>Weer & luchtdruk</strong><br>
-      Hoge luchtdruk → wijn opent beter, aroma’s komen makkelijker los.<br>
-      Lage luchtdruk → wijn blijft vaker dicht, minder expressief.<br>
-      Warm weer → rosé of frisse witte wijn komt vaak beter tot zijn recht.<br>
-      Koud weer → rode wijn of port sluit beter aan bij het moment.</p>
-    </div>
-  </div>
-</div>
+        <h3>Tijdvakken & biodynamische dag</h3>
+        <div id="dayModalSlots"></div>
 
-<!-- Wijnvoorraad -->
-<div class="modal-backdrop" id="inventoryBackdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Wijnvoorraad beheren</div>
-      <button class="modal-close" id="inventoryClose">&times;</button>
-    </div>
-    <div class="modal-content">
-      <div class="modal-section-title">Jouw flessen</div>
-      <div class="inventory-list" id="inventoryList"></div>
-      <div class="modal-actions">
-        <button id="addWineBtn">+ Fles toevoegen</button>
+        <h3>Wijnadvies per tijdvak</h3>
+        <div id="dayModalAdvice"></div>
+
+        <h3>Aanbevolen flessen per tijdvak</h3>
+        <div id="dayModalWines"></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Nieuwe fles toevoegen -->
-<div class="modal-backdrop" id="addWineBackdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Nieuwe fles toevoegen</div>
-      <button class="modal-close" id="addWineClose">&times;</button>
-    </div>
-    <div class="modal-content">
-      <div class="form-row">
-        <label>Naam</label>
-        <input type="text" id="wineNameInput" placeholder="Bijv. Pommard 2018" />
-      </div>
-      <div class="form-row">
-        <label>Druif</label>
-        <input type="text" id="wineGrapeInput" placeholder="Bijv. Pinot Noir" />
-      </div>
-      <div class="form-row">
-        <label>Regio</label>
-        <input type="text" id="wineRegionInput" placeholder="Bijv. Bourgogne" />
-      </div>
-      <div class="form-row">
-        <label>Stijl</label>
-        <select id="wineStyleInput">
-          <option value="aromatisch">Aromatisch</option>
-          <option value="elegant">Elegant</option>
-          <option value="fris">Fris</option>
-          <option value="tanninerijk">Tanninerijk</option>
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button id="addWineCancel">Annuleren</button>
-        <button id="addWineSave">Opslaan</button>
+  <!-- Help modal -->
+  <div class="backdrop" id="helpBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2>Uitleg van het wijnadvies</h2>
+        <button class="icon-btn" id="helpClose">✕</button>
+      </header>
+      <div class="modal-body">
+        <p><strong>Biodynamische dag</strong></p>
+        <ul>
+          <li><strong>Vruchtendag</strong> – aromatische en fruitige wijnen openen vaak mooier.</li>
+          <li><strong>Bloemdag</strong> – elegante, verfijnde wijnen tonen meer nuance.</li>
+          <li><strong>Bladdag</strong> – frisse wijnen kunnen wat vlakker overkomen.</li>
+          <li><strong>Worteldag</strong> – tanninerijke wijnen kunnen strenger en droger smaken.</li>
+        </ul>
+        <p>Het advies combineert de biodynamische dag met eenvoudige weerfactoren (temperatuur & luchtdruk) en jouw eigen wijnvoorraad.</p>
       </div>
     </div>
   </div>
-</div>
-<script>
-/* -----------------------------
-   Conclusie-sleutelwoorden
---------------------------------*/
-const CONCLUSIE_KEYWORDS = [
-  "kan goed werken",
-  "komt beter tot zijn recht",
-  "sluit goed aan",
-  "past beter",
-  "aanbevolen",
-  "het beste",
-  "comfortwijnen",
-  "geschikt",
-  "werkt goed",
-  "is ideaal",
-  "is prettig",
-  "is minder geschikt",
-  "kan vlak zijn",
-  "kan strenger smaken"
-];
 
-/* -----------------------------
-   Wijnvoorraad (localStorage)
---------------------------------*/
-let wines = [];
-
-function saveWines() {
-  localStorage.setItem("wines", JSON.stringify(wines));
-}
-
-function loadWines() {
-  const data = localStorage.getItem("wines");
-  if (data) {
-    try { wines = JSON.parse(data); }
-    catch { wines = []; }
-  } else {
-    wines = [
-      { name: "Pommard 2018", grape: "Pinot Noir", region: "Bourgogne", style: "tanninerijk" },
-      { name: "Sancerre 2022", grape: "Sauvignon Blanc", region: "Loire", style: "aromatisch" },
-      { name: "Provence Rosé 2023", grape: "Grenache", region: "Provence", style: "fris" },
-      { name: "Chablis 2021", grape: "Chardonnay", region: "Bourgogne", style: "elegant" }
-    ];
-  }
-}
-
-/* -----------------------------
-   Maanlogica
---------------------------------*/
-function moonEclipticLongitude(date) {
-  const rad = Math.PI / 180;
-  const days = (date - new Date(Date.UTC(2000, 0, 1, 12))) / 86400000;
-  const L = (218.316 + 13.176396 * days) % 360;
-  const M = (134.963 + 13.064993 * days) % 360;
-  return L + 6.289 * Math.sin(M * rad);
-}
-
-function zodiacSign(longitude) {
-  const signs = [
-    "Aries","Taurus","Gemini","Cancer","Leo","Virgo",
-    "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
-  ];
-  return signs[Math.floor(((longitude % 360) + 360) / 30) % 12];
-}
-
-function biodynamicType(sign) {
-  const fire = ["Aries","Leo","Sagittarius"];
-  const earth = ["Taurus","Virgo","Capricorn"];
-  const air = ["Gemini","Libra","Aquarius"];
-  const water = ["Cancer","Scorpio","Pisces"];
-
-  if (fire.includes(sign)) return "fruit";
-  if (air.includes(sign)) return "flower";
-  if (water.includes(sign)) return "leaf";
-  if (earth.includes(sign)) return "root";
-  return "unknown";
-}
-
-function typeLabel(type) {
-  if (type === "fruit") return "Vruchtendag";
-  if (type === "flower") return "Bloemdag";
-  if (type === "leaf") return "Bladdag";
-  if (type === "root") return "Worteldag";
-  return "Onbekend";
-}
-
-function formatHour(h) {
-  return String(h).padStart(2,"0") + ":00";
-}
-
-/* -----------------------------
-   Tijdvakken bepalen
---------------------------------*/
-function buildTwoSlots(year, month, day) {
-  const types = [];
-  for (let hour = 0; hour < 24; hour++) {
-    const dt = new Date(Date.UTC(year, month, day, hour));
-    const long = moonEclipticLongitude(dt);
-    const sign = zodiacSign(long);
-    const type = biodynamicType(sign);
-    types.push(type);
-  }
-
-  const firstType = types[0];
-  let changeHour = -1;
-
-  for (let h = 1; h < 24; h++) {
-    if (types[h] !== firstType) {
-      changeHour = h;
-      break;
-    }
-  }
-
-  if (changeHour === -1) {
-    return [{ type: firstType, start: 0, end: 23 }];
-  }
-
-  const secondType = types[23];
-
-  return [
-    { type: firstType, start: 0, end: changeHour - 1 },
-    { type: secondType, start: changeHour, end: 23 }
-  ];
-}
-
-/* -----------------------------
-   Weer ophalen
---------------------------------*/
-async function getWeather(date) {
-  const iso = date.toISOString().slice(0, 10);
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=52.0&longitude=5.0&hourly=pressure_msl,temperature_2m,weathercode&start_date=${iso}&end_date=${iso}`;
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data.hourly) return null;
-
-    return {
-      pressure: data.hourly.pressure_msl[12],
-      temp: data.hourly.temperature_2m[12],
-      code: data.hourly.weathercode[12]
-    };
-  } catch {
-    return null;
-  }
-}
-
-/* -----------------------------
-   Advies genereren
---------------------------------*/
-function wineAdviceLong(type, pressure, temp, code) {
-  let advice = "";
-
-  if (type === "fruit") advice += "Vruchtendag – aromatische en fruitige wijnen openen vaak mooier. ";
-  if (type === "flower") advice += "Bloemdag – elegante, verfijnde wijnen tonen meer nuance. ";
-  if (type === "leaf") advice += "Bladdag – frisse wijnen kunnen wat vlakker overkomen. ";
-  if (type === "root") advice += "Worteldag – tanninerijke wijnen kunnen strenger smaken. ";
-
-  if (pressure !== null) {
-    if (pressure > 1015) advice += "Hoge luchtdruk: wijn opent makkelijker. ";
-    else if (pressure < 1005) advice += "Lage luchtdruk: wijn blijft vaker gesloten. ";
-    else advice += "Gemiddelde luchtdruk: neutrale invloed. ";
-  }
-
-  if (temp !== null) {
-    if (temp > 22) advice += "Warm weer: rosé of frisse witte wijn past beter. ";
-    else if (temp < 10) advice += "Koud weer: vollere rode wijn sluit beter aan. ";
-    else advice += "Gemiddelde temperatuur: zowel wit als rood kan goed werken. ";
-  }
-
-  if (code !== null && code > 60) {
-    advice += "Regenachtig weer: comfortwijnen kunnen extra prettig zijn. ";
-  }
-
-  if (pressure === null && temp === null && code === null) {
-    advice += "Weerdata niet beschikbaar: advies gebaseerd op biodynamische dag. ";
-  }
-
-  return advice.trim();
-}
-
-/* -----------------------------
-   Wijnmatch
---------------------------------*/
-function matchWines(type, temp) {
-  return wines.filter(w => {
-    if (type === "fruit" && w.style === "aromatisch") return true;
-    if (type === "flower" && w.style === "elegant") return true;
-    if (type === "leaf" && w.style === "fris") return true;
-    if (type === "root" && w.style === "tanninerijk") return true;
-
-    if (temp !== null && temp > 22 && w.style === "fris") return true;
-    if (temp !== null && temp < 10 && w.style === "tanninerijk") return true;
-
-    return false;
-  });
-}
-
-/* -----------------------------
-   Conclusie-zin extractie
---------------------------------*/
-function extractConclusionSentence(text) {
-  if (!text) return "";
-  const sentences = text.split(/(?<=[.!?])\s+/);
-
-  for (const s of sentences) {
-    const lower = s.toLowerCase();
-    for (const kw of CONCLUSIE_KEYWORDS) {
-      if (lower.includes(kw.toLowerCase())) {
-        return cleanConclusionSentence(s.trim());
-      }
-    }
-  }
-
-  return cleanConclusionSentence(sentences[sentences.length - 1].trim());
-}
-
-function cleanConclusionSentence(sentence) {
-  let s = sentence;
-
-  s = s.replace(/^.*temperatuur:\s*/i, "");
-  s = s.replace(/^.*weer:\s*/i, "");
-  s = s.replace(/^hoge luchtdruk:\s*/i, "");
-  s = s.replace(/^lage luchtdruk:\s*/i, "");
-  s = s.replace(/^regenachtig.*?:\s*/i, "");
-  s = s.replace(/^warm weer:\s*/i, "");
-  s = s.replace(/^koud weer:\s*/i, "");
-  s = s.replace(/^\s+/, "");
-
-  if (!s) return "";
-  return s.replace(/^./, c => c.toUpperCase());
-}
-
-/* -----------------------------
-   Modal open/close
---------------------------------*/
-function openModal(title, weatherText, slotsHtml, adviceHtml, winesHtml) {
-  document.getElementById("modalTitle").textContent = title;
-  document.getElementById("modalWeather").textContent = weatherText;
-  document.getElementById("modalSlots").innerHTML = slotsHtml;
-  document.getElementById("modalAdvice").innerHTML = adviceHtml;
-  document.getElementById("modalWines").innerHTML = winesHtml;
-  document.getElementById("modalBackdrop").style.display = "flex";
-}
-
-function closeModal() {
-  document.getElementById("modalBackdrop").style.display = "none";
-}
-
-document.getElementById("modalClose").addEventListener("click", closeModal);
-document.getElementById("modalBackdrop").addEventListener("click", e => {
-  if (e.target.id === "modalBackdrop") closeModal();
-});
-
-/* -----------------------------
-   Help popup
---------------------------------*/
-document.getElementById("helpIcon").addEventListener("click", () => {
-  document.getElementById("helpBackdrop").style.display = "flex";
-});
-document.getElementById("helpClose").addEventListener("click", () => {
-  document.getElementById("helpBackdrop").style.display = "none";
-});
-document.getElementById("helpBackdrop").addEventListener("click", e => {
-  if (e.target.id === "helpBackdrop") {
-    document.getElementById("helpBackdrop").style.display = "none";
-  }
-});
-
-/* -----------------------------
-   Voorraad UI
---------------------------------*/
-function renderInventoryList() {
-  const list = document.getElementById("inventoryList");
-
-  if (!wines.length) {
-    list.innerHTML = "<em>Geen flessen toegevoegd.</em>";
-    return;
-  }
-
-  list.innerHTML = "";
-  wines.forEach((w, index) => {
-    const div = document.createElement("div");
-    div.className = "inventory-item";
-
-    const label = document.createElement("span");
-    label.textContent = `${w.name} – ${w.grape} (${w.region}) – ${w.style}`;
-
-    const btn = document.createElement("button");
-    btn.className = "inventory-remove";
-    btn.textContent = "✕";
-    btn.addEventListener("click", () => {
-      wines.splice(index, 1);
-      saveWines();
-      renderInventoryList();
-      renderCalendar(currentYear, currentMonth);
-    });
-
-    div.appendChild(label);
-    div.appendChild(btn);
-    list.appendChild(div);
-  });
-}
-
-document.getElementById("inventoryBtn").addEventListener("click", () => {
-  renderInventoryList();
-  document.getElementById("inventoryBackdrop").style.display = "flex";
-});
-document.getElementById("inventoryClose").addEventListener("click", () => {
-  document.getElementById("inventoryBackdrop").style.display = "none";
-});
-document.getElementById("inventoryBackdrop").addEventListener("click", e => {
-  if (e.target.id === "inventoryBackdrop") {
-    document.getElementById("inventoryBackdrop").style.display = "none";
-  }
-});
-
-/* -----------------------------
-   Nieuwe fles toevoegen
---------------------------------*/
-function openAddWinePopup() {
-  document.getElementById("wineNameInput").value = "";
-  document.getElementById("wineGrapeInput").value = "";
-  document.getElementById("wineRegionInput").value = "";
-  document.getElementById("wineStyleInput").value = "aromatisch";
-  document.getElementById("addWineBackdrop").style.display = "flex";
-}
-
-function closeAddWinePopup() {
-  document.getElementById("addWineBackdrop").style.display = "none";
-}
-
-document.getElementById("addWineBtn").addEventListener("click", openAddWinePopup);
-document.getElementById("addWineClose").addEventListener("click", closeAddWinePopup);
-document.getElementById("addWineCancel").addEventListener("click", closeAddWinePopup);
-document.getElementById("addWineBackdrop").addEventListener("click", e => {
-  if (e.target.id === "addWineBackdrop") closeAddWinePopup();
-});
-
-document.getElementById("addWineSave").addEventListener("click", () => {
-  const name = document.getElementById("wineNameInput").value.trim();
-  const grape = document.getElementById("wineGrapeInput").value.trim();
-  const region = document.getElementById("wineRegionInput").value.trim();
-  const style = document.getElementById("wineStyleInput").value;
-
-  if (!name || !grape || !region) {
-    alert("Vul naam, druif en regio in.");
-    return;
-  }
-
-  wines.push({ name, grape, region, style });
-  saveWines();
-  closeAddWinePopup();
-  renderInventoryList();
-  renderCalendar(currentYear, currentMonth);
-});
-
-/* -----------------------------
-   Kalender renderen
---------------------------------*/
-let currentYear, currentMonth;
-
-async function renderCalendar(year, month) {
-  currentYear = year;
-  currentMonth = month;
-
-  const container = document.getElementById("weeksContainer");
-  container.innerHTML = "";
-
-  const firstDay = new Date(Date.UTC(year, month, 1));
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  let startOffset = (firstDay.getUTCDay() + 6) % 7;
-
-  let week = document.createElement("div");
-  week.className = "week";
-
-  for (let i = 0; i < startOffset; i++) {
-    const empty = document.createElement("div");
-    empty.className = "day empty";
-    week.appendChild(empty);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(Date.UTC(year, month, day));
-    const slots = buildTwoSlots(year, month, day);
-
-    const weather = await getWeather(date);
-    const pressure = weather?.pressure ?? null;
-    const temp = weather?.temp ?? null;
-    const code = weather?.code ?? null;
-
-    const mainType = slots[0]?.type || "unknown";
-
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "day " + mainType;
-
-    const pressureText = pressure !== null ? `${pressure.toFixed(0)} hPa` : "n.v.t.";
-    const weatherLine = `Luchtdruk ${pressureText}`;
-
-    let contentHtml = `
-      <div class="day-number"><strong>${day}</strong></div>
-      <div class="day-content">
-        <div class="day-weather">${weatherLine}</div>
-    `;
-
-    slots.forEach(s => {
-      const start = formatHour(s.start);
-      const fullAdvice = wineAdviceLong(s.type, pressure, temp, code);
-      const conclusion = extractConclusionSentence(fullAdvice);
-      const matched = matchWines(s.type, temp);
-
-      const winesHtml = matched.length
-        ? matched.map(w => `• ${w.name} (${w.style})`).join("<br>")
-        : "Geen specifieke flessen.";
-
-      contentHtml += `
-        <div class="slot-block">
-          <div class="slot-title">${start} ${typeLabel(s.type)}</div>
-          <div class="slot-conclusion">${conclusion}</div>
-          <div class="slot-wines">${winesHtml}</div>
+  <!-- Voorraad modal -->
+  <div class="backdrop" id="inventoryBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2>Wijnvoorraad beheren</h2>
+        <button class="icon-btn" id="inventoryClose">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="inventoryList" class="inventory-list"></div>
+
+        <hr />
+
+        <h3>Nieuwe fles toevoegen</h3>
+        <div class="form-grid">
+          <label>
+            Naam
+            <input type="text" id="wineNameInput" placeholder="Sancerre 2022" />
+          </label>
+          <label>
+            Druif
+            <input type="text" id="wineGrapeInput" placeholder="Sauvignon Blanc" />
+          </label>
+          <label>
+            Regio
+            <input type="text" id="wineRegionInput" placeholder="Loire" />
+          </label>
+          <label>
+            Stijl
+            <select id="wineStyleInput">
+              <option value="aromatisch">Aromatisch</option>
+              <option value="elegant">Elegant</option>
+              <option value="fris">Fris</option>
+              <option value="tanninerijk">Tanninerijk</option>
+            </select>
+          </label>
         </div>
-      `;
-    });
 
-    contentHtml += `</div>`;
-    dayDiv.innerHTML = contentHtml;
+        <div class="modal-actions">
+          <button id="addWineBtn" class="primary-btn">Fles toevoegen</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    dayDiv.addEventListener("click", () => {
-      const title = `Dag ${day}-${month + 1}-${year}`;
-
-      let weatherText = "";
-      if (pressure === null && temp === null && code === null) {
-        weatherText = "Weerdata niet beschikbaar.";
-      } else {
-        weatherText =
-          `Luchtdruk: ${pressure?.toFixed(0) ?? "n.v.t."} hPa, ` +
-          `Temperatuur: ${temp?.toFixed(1) ?? "n.v.t."} °C, ` +
-          `Weercode: ${code ?? "n.v.t."}`;
-      }
-
-      const slotsListHtml = slots.map(s => {
-        const start = formatHour(s.start);
-        const end = s.end === 23 ? "23:59" : formatHour(s.end + 1);
-        return `${start}–${end}: ${typeLabel(s.type)}`;
-      }).join("<br>");
-
-      const adviceHtml = slots.map(s => {
-        const adv = wineAdviceLong(s.type, pressure, temp, code);
-        const start = formatHour(s.start);
-        const end = s.end === 23 ? "23:59" : formatHour(s.end + 1);
-        return `<strong>${start}–${end}</strong><br>${adv}`;
-      }).join("<br><br>");
-
-      const winesPerSlot = slots.map(s => {
-        const matched = matchWines(s.type, temp);
-        const start = formatHour(s.start);
-        const end = s.end === 23 ? "23:59" : formatHour(s.end + 1);
-
-        if (!matched.length) {
-          return `<strong>${start}–${end}</strong>: geen specifieke flessen.`;
-        }
-
-        const list = matched
-          .map(w => `• ${w.name} – ${w.grape} (${w.region}) – ${w.style}`)
-          .join("<br>");
-
-        return `<strong>${start}–${end}</strong><br>${list}`;
-      }).join("<br><br>");
-
-      openModal(title, weatherText, slotsListHtml, adviceHtml, winesPerSlot);
-    });
-
-    week.appendChild(dayDiv);
-
-    const weekday = (startOffset + day - 1) % 7;
-    if (weekday === 6 || day === daysInMonth) {
-      container.appendChild(week);
-      if (day !== daysInMonth) {
-        week = document.createElement("div");
-        week.className = "week";
-      }
-    }
-  }
-}
-
-/* -----------------------------
-   Render-knop + init
---------------------------------*/
-document.getElementById("renderBtn").addEventListener("click", () => {
-  const year = parseInt(document.getElementById("yearInput").value, 10);
-  const month = parseInt(document.getElementById("monthSelect").value, 10);
-  renderCalendar(year, month);
-});
-
-(function init() {
-  loadWines();
-  const now = new Date();
-  document.getElementById("yearInput").value = now.getFullYear();
-  document.getElementById("monthSelect").value = now.getMonth();
-  renderCalendar(now.getFullYear(), now.getMonth());
-})();
-</script>
+  <script src="app.js"></script>
+</body>
+</html>
