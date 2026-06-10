@@ -237,6 +237,29 @@
         padding:12px;
       }
     }
+/* --- iPhone layout: 3 kolommen + vaste tegelbreedte --- */
+@media (max-width: 480px) {
+
+  .calendar {
+    overflow-x: scroll !important;
+    overflow-y: scroll !important;
+  }
+
+  .week {
+    grid-template-columns: repeat(3, 1fr) !important;
+    min-width: 650px !important;   /* horizontale scroll verplicht */
+  }
+
+  .day {
+    min-width: 200px !important;   /* jouw keuze: B */
+    max-width: 240px !important;
+    min-height: 260px !important;  /* iets ruimer voor leesbaarheid */
+  }
+
+  .day-content {
+    -webkit-line-clamp: 12 !important;
+  }
+}    
   </style>
 </head>
 <body>
