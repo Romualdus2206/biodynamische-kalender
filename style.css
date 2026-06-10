@@ -39,6 +39,97 @@ body {
   overflow: hidden;
 }
 
+body.view-day,
+body.view-week {
+  --parchment: #f0e6d6;
+  --parchment-deep: #d9c9ad;
+  --dial-good: #6e2435;
+  --dial-neutral: #c4b196;
+  --dial-line: #1a1a1a;
+  --dial-toggle-active: #6e6e6e;
+  padding: 0;
+  height: 100dvh;
+  background-color: var(--parchment);
+  background-image:
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.55) 0%, transparent 42%),
+    radial-gradient(circle at 78% 72%, rgba(120, 90, 50, 0.07) 0%, transparent 48%),
+    radial-gradient(circle at 42% 60%, rgba(90, 70, 40, 0.05) 0%, transparent 35%);
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+}
+
+body.view-day .page-header,
+body.view-week .page-header {
+  display: none;
+}
+
+body.view-month #dayView,
+body.view-month #weekDialView,
+body.view-month #dialViewFooter {
+  display: none !important;
+}
+
+body.view-month #monthView {
+  display: flex !important;
+}
+
+body.view-day #monthView,
+body.view-day #weekDialView {
+  display: none !important;
+}
+
+body.view-week #monthView,
+body.view-week #dayView {
+  display: none !important;
+}
+
+body.view-day .app-main,
+body.view-week .app-main {
+  flex: 1;
+  min-height: 0;
+}
+
+body.view-day #dayView {
+  display: flex !important;
+  height: 100%;
+}
+
+body.view-week #weekDialView {
+  display: flex !important;
+  height: 100%;
+}
+
+body.view-month {
+  padding: var(--header-pad);
+}
+
+.week-range-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.week-range-label {
+  text-align: center;
+  min-width: 11rem;
+}
+
+.week-range-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.week-range-days {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+  padding: 0 4px;
+}
+
 .page-header {
   position: relative;
   z-index: 20;
@@ -185,6 +276,232 @@ body {
 .primary-btn:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.day-view {
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: max(12px, env(safe-area-inset-top)) 20px 0;
+  overflow: hidden;
+}
+
+.day-view-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+  margin-bottom: 22px;
+}
+
+.vintage-icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--dial-line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dial-line);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  font-family: inherit;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+.vintage-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.day-date-nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.day-nav-btn {
+  border: none;
+  background: transparent;
+  color: var(--dial-line);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+.day-date-label {
+  min-width: 7.5rem;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.day-weekday {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.day-date-short {
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.dial-wrap {
+  position: relative;
+  width: min(78vw, 290px);
+  height: min(78vw, 290px);
+  flex: 1 1 auto;
+  max-height: calc(100dvh - 250px);
+  margin: 8px auto 0;
+  flex-shrink: 1;
+  min-height: 250px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.day-dial {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.dial-center {
+  position: absolute;
+  inset: 24%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dial-question {
+  margin: 0 0 2px;
+  font-size: 0.88rem;
+  font-weight: 400;
+}
+
+.dial-verdict {
+  margin: 0;
+  font-size: clamp(2.2rem, 10vw, 3rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease;
+}
+
+.dial-verdict.is-good {
+  color: var(--dial-good);
+}
+
+.dial-verdict.is-bad {
+  color: #1a1a1a;
+}
+
+.dial-icon {
+  width: 50px;
+  height: 58px;
+  margin: 4px 0 2px;
+}
+
+.dial-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dial-type {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.dial-next-time {
+  margin: 4px 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.day-view-footer {
+  flex-shrink: 0;
+  padding: 10px 24px max(18px, env(safe-area-inset-bottom));
+  background: transparent;
+}
+
+.day-view-footer.view-toggle {
+  display: flex;
+  margin: 0;
+  gap: 0;
+}
+
+.day-view-footer .view-toggle-btn {
+  flex: 1;
+  border: 1px solid var(--dial-line);
+  background: var(--parchment);
+  color: var(--dial-line);
+  padding: 11px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+.day-view-footer .view-toggle-btn:first-child {
+  border-radius: 0;
+  border-right: none;
+}
+
+.day-view-footer .view-toggle-btn:last-child {
+  border-radius: 0;
+}
+
+.day-view-footer .view-toggle-btn.is-active {
+  background: var(--dial-toggle-active);
+  color: #fff;
+  border-color: var(--dial-toggle-active);
+}
+
+.month-view.calendar-wrapper {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  min-width: 0;
+}
+
+body.view-month .month-view.calendar-wrapper {
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg-main);
+  padding: 8px 0 12px;
 }
 
 .calendar-wrapper {
@@ -383,6 +700,46 @@ body {
   font-size: 0.9rem;
 }
 
+.modal-view-choice {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.modal-view-hint {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.modal-view-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dial-view-btn {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  align-self: flex-start;
+}
+
+.dial-view-btn:hover {
+  background: #003f82;
+}
+
+.modal-view-or {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .modal-actions {
   margin-top: 10px;
   display: flex;
@@ -504,6 +861,16 @@ body {
     padding: 10px 12px;
   }
 
+  body.view-month {
+    padding: 0;
+    height: 100dvh;
+  }
+
+  body.view-month .page-header {
+    padding: 10px 10px 8px;
+  }
+
+  .month-view.calendar-wrapper,
   .calendar-wrapper {
     flex: 1;
     min-height: 0;
@@ -513,6 +880,10 @@ body {
     background: var(--bg-main);
     overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  .dial-wrap {
+    width: min(88vw, 320px);
   }
 
   .month-pan {

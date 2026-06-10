@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <title>Biodynamische kalender</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css?v=15" />
+  <link rel="stylesheet" href="style.css?v=23" />
 </head>
-<body>
+<body class="view-month">
 
   <div class="page-header">
     <header class="topbar">
@@ -53,22 +53,96 @@
     </section>
   </div>
 
-  <main class="calendar-wrapper">
-    <div class="month-pan">
-      <div class="month-board">
-        <div class="weekdays">
-          <div>Ma</div>
-          <div>Di</div>
-          <div>Wo</div>
-          <div>Do</div>
-          <div>Vr</div>
-          <div>Za</div>
-          <div>Zo</div>
-        </div>
-        <div id="weeksContainer"></div>
+  <main class="app-main">
+    <section id="dayView" class="day-view" aria-label="Dagweergave">
+      <div class="day-view-toolbar">
+        <button type="button" id="dayInventoryBtn" class="vintage-icon-btn" title="Wijnvoorraad" aria-label="Wijnvoorraad">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="dayWeekBtn" class="vintage-icon-btn" title="Weekoverzicht" aria-label="Weekoverzicht">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4M4 10h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="dayHelpBtn" class="vintage-icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
       </div>
-    </div>
+
+      <div class="day-date-nav">
+        <button type="button" id="prevDayBtn" class="day-nav-btn" aria-label="Vorige dag">‹</button>
+        <div class="day-date-label">
+          <div id="dayWeekday" class="day-weekday">woensdag</div>
+          <div id="dayDateShort" class="day-date-short">10 juni</div>
+        </div>
+        <button type="button" id="nextDayBtn" class="day-nav-btn" aria-label="Volgende dag">›</button>
+      </div>
+
+      <div class="dial-wrap">
+        <svg id="dayDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="24-uurs wijzerplaat"></svg>
+        <div class="dial-center">
+          <p class="dial-question">Goede wijndag?</p>
+          <p id="dialVerdict" class="dial-verdict">NEE</p>
+          <div id="dialIcon" class="dial-icon"></div>
+          <p id="dialType" class="dial-type">WORTEL</p>
+          <p id="dialNextTime" class="dial-next-time">15:00</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="weekDialView" class="day-view week-dial-view" aria-label="Weekwijzer">
+      <div class="day-view-toolbar">
+        <button type="button" id="weekInventoryBtn" class="vintage-icon-btn" title="Wijnvoorraad" aria-label="Wijnvoorraad">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="weekMonthBtn" class="vintage-icon-btn" title="Maandkalender" aria-label="Maandkalender">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4M4 10h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="weekHelpBtn" class="vintage-icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
+      </div>
+
+      <div class="week-range-nav">
+        <button type="button" id="prevWeekBtn" class="day-nav-btn" aria-label="Vorige week">‹</button>
+        <div class="week-range-label">
+          <div id="weekRangeText" class="week-range-text">8 JUN - 14 JUN</div>
+          <div class="week-range-days">
+            <span id="weekStartName">MAANDAG</span>
+            <span id="weekEndName">ZONDAG</span>
+          </div>
+        </div>
+        <button type="button" id="nextWeekBtn" class="day-nav-btn" aria-label="Volgende week">›</button>
+      </div>
+
+      <div class="dial-wrap" id="weekDialWrap">
+        <svg id="weekDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="Weekwijzer 24 uur"></svg>
+        <div class="dial-center">
+          <p class="dial-question">Goede wijndag?</p>
+          <p id="weekDialVerdict" class="dial-verdict">NEE</p>
+          <div id="weekDialIcon" class="dial-icon"></div>
+          <p id="weekDialType" class="dial-type">BLAD</p>
+          <p id="weekDialTime" class="dial-next-time">12:00</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="monthView" class="month-view calendar-wrapper" aria-label="Maandkalender">
+      <div class="month-pan">
+        <div class="month-board">
+          <div class="weekdays">
+            <div>Ma</div>
+            <div>Di</div>
+            <div>Wo</div>
+            <div>Do</div>
+            <div>Vr</div>
+            <div>Za</div>
+            <div>Zo</div>
+          </div>
+          <div id="weeksContainer"></div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <nav id="dialViewFooter" class="day-view-footer view-toggle" aria-label="Weergave wisselen" hidden>
+    <button type="button" id="viewDayBtn" class="view-toggle-btn is-active">DAG</button>
+    <button type="button" id="viewWeekBtn" class="view-toggle-btn">WEEK</button>
+  </nav>
 
   <div class="backdrop" id="dayModalBackdrop">
     <div class="modal">
@@ -77,6 +151,13 @@
         <button type="button" class="icon-btn" id="dayModalClose" aria-label="Sluiten">✕</button>
       </header>
       <div class="modal-body">
+        <div class="modal-view-choice">
+          <p class="modal-view-hint">Kies hoe je deze dag wilt bekijken:</p>
+          <div class="modal-view-actions">
+            <button type="button" id="openDialViewBtn" class="dial-view-btn">Wijzerplaat (24 uur)</button>
+            <span class="modal-view-or">of lees hieronder het volledige advies</span>
+          </div>
+        </div>
         <h3>Weer & luchtdruk</h3>
         <p id="dayModalWeather"></p>
         <h3>Tijdvakken & biodynamische dag</h3>
@@ -167,6 +248,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

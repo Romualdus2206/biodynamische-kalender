@@ -34,6 +34,33 @@ let calendarRequestId = 0;
 let locationRequestId = 0;
 let renderDebounceTimer;
 let locationDebounceTimer;
+let dialRefreshTimer;
+let viewMode = "month";
+let selectedDay;
+let selectedMonth;
+let selectedYear;
+let weekMonday;
+let weekDayIndex = 0;
+let weekSlotIndex = null;
+let weekDisplayHour = null;
+let dayClockHour = null;
+
+const WEEKDAY_NAMES_LONG = [
+  "zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"
+];
+const WEEKDAY_NAMES_UPPER = [
+  "ZONDAG", "MAANDAG", "DINSDAG", "WOENSDAG", "DONDERDAG", "VRIJDAG", "ZATERDAG"
+];
+const WEEKDAY_LABELS_DIAL = ["MA", "DI", "WO", "DO", "VR", "ZA", "ZO"];
+const MONTH_NAMES_LONG = [
+  "januari", "februari", "maart", "april", "mei", "juni",
+  "juli", "augustus", "september", "oktober", "november", "december"
+];
+const MONTH_NAMES_SHORT = [
+  "JAN", "FEB", "MAA", "APR", "MEI", "JUN",
+  "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"
+];
+const DIAL_HOUR_LABELS = [0, 3, 6, 9, 12, 17, 18, 21];
 
 // ===== Opslag (veilig voor Safari) =====
 
@@ -416,6 +443,616 @@ function dominantType(slots) {
   return best.type;
 }
 
+function isGoodWineType(type) {
+  return type === "fruit" || type === "flower";
+}
+
+function typeShortLabel(type) {
+  if (type === "fruit") return "VRUCHT";
+  if (type === "flower") return "BLOEM";
+  if (type === "leaf") return "BLAD";
+  if (type === "root") return "WORTEL";
+  return "—";
+}
+
+function isSameCalendarDate(y, m, d, date) {
+  return date.getFullYear() === y && date.getMonth() === m && date.getDate() === d;
+}
+
+function isToday(y, m, d) {
+  return isSameCalendarDate(y, m, d, new Date());
+}
+
+function activeHourForDate(y, m, d) {
+  if (isToday(y, m, d)) {
+    const now = new Date();
+    return now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+  }
+  return 12;
+}
+
+function slotAtHour(slots, hour) {
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    const end = slot.end >= 24 ? 24 : slot.end;
+    if (hour >= slot.start && hour < end) return { slot: slot, index: i };
+  }
+  return { slot: slots[slots.length - 1], index: slots.length - 1 };
+}
+
+function hourToDialAngle(hour) {
+  return (hour / 24) * 360 - 90;
+}
+
+function polarToXY(cx, cy, radius, angleDeg) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return {
+    x: cx + radius * Math.cos(rad),
+    y: cy + radius * Math.sin(rad)
+  };
+}
+
+function angleRingSegmentPath(cx, cy, rOuter, rInner, startDeg, endDeg, gapDeg) {
+  const gap = gapDeg || 0;
+  const start = startDeg + gap / 2;
+  const end = endDeg - gap / 2;
+  const span = endDeg - startDeg;
+  const largeArc = span > 180 ? 1 : 0;
+
+  const oStart = polarToXY(cx, cy, rOuter, start);
+  const oEnd = polarToXY(cx, cy, rOuter, end);
+  const iEnd = polarToXY(cx, cy, rInner, end);
+  const iStart = polarToXY(cx, cy, rInner, start);
+
+  return (
+    "M " + oStart.x + " " + oStart.y +
+    " A " + rOuter + " " + rOuter + " 0 " + largeArc + " 1 " + oEnd.x + " " + oEnd.y +
+    " L " + iEnd.x + " " + iEnd.y +
+    " A " + rInner + " " + rInner + " 0 " + largeArc + " 0 " + iStart.x + " " + iStart.y +
+    " Z"
+  );
+}
+
+function ringSegmentPath(cx, cy, rOuter, rInner, startHour, endHour, gapDeg) {
+  const gap = gapDeg || 0;
+  const start = hourToDialAngle(startHour) + gap / 2;
+  const endHourVal = endHour >= 24 ? 24 : endHour;
+  const end = hourToDialAngle(endHourVal) - gap / 2;
+  const span = endHourVal - startHour;
+  const largeArc = span > 12 ? 1 : 0;
+
+  const oStart = polarToXY(cx, cy, rOuter, start);
+  const oEnd = polarToXY(cx, cy, rOuter, end);
+  const iEnd = polarToXY(cx, cy, rInner, end);
+  const iStart = polarToXY(cx, cy, rInner, start);
+
+  return (
+    "M " + oStart.x + " " + oStart.y +
+    " A " + rOuter + " " + rOuter + " 0 " + largeArc + " 1 " + oEnd.x + " " + oEnd.y +
+    " L " + iEnd.x + " " + iEnd.y +
+    " A " + rInner + " " + rInner + " 0 " + largeArc + " 0 " + iStart.x + " " + iStart.y +
+    " Z"
+  );
+}
+
+const DIAL_QUADRANTS = [
+  { start: 0.2, end: 5.8 },
+  { start: 6.2, end: 11.8 },
+  { start: 12.2, end: 17.8 },
+  { start: 18.2, end: 23.8 }
+];
+
+function redWineGlassSvg(isGood, showFlower) {
+  const flowers = showFlower
+    ? '<g opacity="0.4" stroke="#9a8568" fill="none" stroke-width="0.8">' +
+      '<path d="M2 40 Q0 28 4 20 Q8 12 12 20 Q14 28 12 36"/>' +
+      '<path d="M7 38 L9 22 M10 30 L11 24"/>' +
+      "</g>" +
+      '<g opacity="0.4" stroke="#9a8568" fill="none" stroke-width="0.8" transform="translate(52 0) scale(-1 1)">' +
+      '<path d="M2 40 Q0 28 4 20 Q8 12 12 20 Q14 28 12 36"/>' +
+      '<path d="M7 38 L9 22 M10 30 L11 24"/>' +
+      "</g>"
+    : "";
+  const wineFill = isGood
+    ? '<path d="M14 16 C18 16 30 16 34 16 C36 22 35 30 32 34 C28 37 20 37 16 34 C13 30 12 22 14 16 Z" fill="#7a2332" opacity="0.92"/>' +
+      '<path d="M14 16 C18 16 30 16 34 16 C35 20 34 25 31 28 C27 30 21 30 17 28 C15 25 14 20 14 16 Z" fill="#5c1828"/>'
+    : "";
+
+  return (
+    '<svg viewBox="0 0 52 68" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    flowers +
+    '<path d="M14 10 C14 8 38 8 38 10 C40 18 39 28 35 35 C32 38 28 39 26 39 C24 39 20 38 17 35 C13 28 12 18 14 10 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1.1" stroke-linejoin="round"/>' +
+    wineFill +
+    '<path d="M24 39 L24 41" stroke="#1a1a1a" stroke-width="1.1"/>' +
+    '<line x1="24" y1="41" x2="24" y2="56" stroke="#1a1a1a" stroke-width="1.1"/>' +
+    '<ellipse cx="24" cy="58.5" rx="7" ry="2.2" fill="none" stroke="#1a1a1a" stroke-width="1.1"/>' +
+    "</svg>"
+  );
+}
+
+function weekDayAngle(dayIndex) {
+  return -90 + dayIndex * (360 / 7);
+}
+
+function mondayOfWeek(y, m, d) {
+  const date = new Date(y, m, d);
+  const offset = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - offset);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function weekDayDate(dayIndex) {
+  const date = new Date(weekMonday);
+  date.setDate(date.getDate() + dayIndex);
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth(),
+    day: date.getDate()
+  };
+}
+
+function syncWeekFromSelectedDate() {
+  weekMonday = mondayOfWeek(selectedYear, selectedMonth, selectedDay);
+  weekDayIndex = (new Date(selectedYear, selectedMonth, selectedDay).getDay() + 6) % 7;
+}
+
+function formatWeekRangeLabel(monday) {
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6);
+  const left = monday.getDate() + " " + MONTH_NAMES_SHORT[monday.getMonth()];
+  const right = sunday.getDate() + " " + MONTH_NAMES_SHORT[sunday.getMonth()];
+  return left + " - " + right;
+}
+
+function formatClockFromHour(hour) {
+  const total = ((hour % 24) + 24) % 24;
+  return formatHour(total);
+}
+
+const WEEK_DAY_SPAN = 360 / 7;
+
+function weekDayStartAngle(dayIndex) {
+  return weekDayAngle(dayIndex) - WEEK_DAY_SPAN / 2;
+}
+
+function dialPointerHit(event, wrap) {
+  const rect = wrap.getBoundingClientRect();
+  const clientX = event.clientX != null ? event.clientX : (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
+  const clientY = event.clientY != null ? event.clientY : (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+  const x = clientX - rect.left - rect.width / 2;
+  const y = clientY - rect.top - rect.height / 2;
+  const dist = Math.sqrt(x * x + y * y) / (rect.width / 2);
+  let angle = Math.atan2(y, x) * 180 / Math.PI + 90;
+  if (angle < 0) angle += 360;
+  return { dist: dist, angle: angle, hour: (angle / 360) * 24 };
+}
+
+function weekClickToSelection(angle) {
+  const rel = (angle + WEEK_DAY_SPAN / 2) % 360;
+  const dayIndex = Math.floor(rel / WEEK_DAY_SPAN) % 7;
+  const posInDay = rel - dayIndex * WEEK_DAY_SPAN;
+  const frac = posInDay / WEEK_DAY_SPAN;
+
+  const day = weekDayDate(dayIndex);
+  const slots = buildSlots(day.year, day.month, day.day);
+  let acc = 0;
+
+  for (let i = 0; i < slots.length; i++) {
+    const dur = slots[i].end - slots[i].start;
+    const endFrac = (acc + dur) / 24;
+    if (frac <= endFrac || i === slots.length - 1) {
+      const startFrac = acc / 24;
+      const fracInSlot = Math.max(0, Math.min(1, (frac - startFrac) / (dur / 24 || 1)));
+      const displayHour = slots[i].start + fracInSlot * dur;
+      return {
+        dayIndex: dayIndex,
+        slotIndex: i,
+        slot: slots[i],
+        displayHour: displayHour
+      };
+    }
+    acc += dur;
+  }
+
+  return {
+    dayIndex: dayIndex,
+    slotIndex: 0,
+    slot: slots[0],
+    displayHour: slots[0].start
+  };
+}
+
+function defaultWeekSelection(dayIndex) {
+  const day = weekDayDate(dayIndex);
+  const slots = buildSlots(day.year, day.month, day.day);
+  if (isToday(day.year, day.month, day.day)) {
+    const hour = activeHourForDate(day.year, day.month, day.day);
+    const picked = slotAtHour(slots, hour);
+    return {
+      slotIndex: picked.index,
+      slot: picked.slot,
+      displayHour: hour
+    };
+  }
+  return {
+    slotIndex: 0,
+    slot: slots[0],
+    displayHour: slots[0].start
+  };
+}
+
+function hourToWeekAngle(dayIndex, hour) {
+  const dayStart = weekDayStartAngle(dayIndex);
+  return dayStart + (hour / 24) * WEEK_DAY_SPAN;
+}
+
+function slotAnglesInWeekDay(dayIndex, slots, slotIndex) {
+  const dayStart = weekDayStartAngle(dayIndex);
+  let acc = 0;
+  for (let i = 0; i < slotIndex; i++) {
+    acc += slots[i].end - slots[i].start;
+  }
+  const slot = slots[slotIndex];
+  const dur = slot.end - slot.start;
+  const startFrac = acc / 24;
+  const endFrac = (acc + dur) / 24;
+  const midFrac = startFrac + dur / 48;
+  return {
+    start: dayStart + startFrac * WEEK_DAY_SPAN,
+    end: dayStart + endFrac * WEEK_DAY_SPAN,
+    center: dayStart + midFrac * WEEK_DAY_SPAN
+  };
+}
+
+function updateDialCenter(verdictEl, iconEl, typeEl, timeEl, slot, displayHour) {
+  const isGood = isGoodWineType(slot.type);
+  if (verdictEl) {
+    verdictEl.textContent = isGood ? "JA" : "NEE";
+    verdictEl.classList.toggle("is-good", isGood);
+    verdictEl.classList.toggle("is-bad", !isGood);
+  }
+  if (iconEl) iconEl.innerHTML = redWineGlassSvg(isGood, slot.type === "flower");
+  if (typeEl) typeEl.textContent = typeShortLabel(slot.type);
+  if (timeEl) timeEl.textContent = formatClockFromHour(displayHour);
+}
+
+function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLabel, rPin, tan, good) {
+  DIAL_QUADRANTS.forEach(function (quad) {
+    svg += '<path d="' + ringSegmentPath(cx, cy, rOuter, rInner, quad.start, quad.end, 0) + '" fill="' + tan + '"/>';
+  });
+
+  slots.forEach(function (slot) {
+    if (!isGoodWineType(slot.type)) return;
+    const end = slot.end >= 24 ? 24 : slot.end;
+    svg += '<path d="' + ringSegmentPath(cx, cy, rOuter, rInner, slot.start, end, 0) + '" fill="' + good + '"/>';
+  });
+
+  const active = slotAtHour(slots, activeHour).slot;
+  const activeEnd = active.end >= 24 ? 24 : active.end;
+  svg += '<path d="' + ringSegmentPath(cx, cy, rOuter + 1, rInner - 1, active.start, activeEnd, 0.3) + '" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.75"/>';
+
+  for (let hour = 0; hour < 24; hour++) {
+    const a = hourToDialAngle(hour);
+    const p1 = polarToXY(cx, cy, rInner - 1, a);
+    const p2 = polarToXY(cx, cy, rOuter + 1, a);
+    const isMajor = DIAL_HOUR_LABELS.indexOf(hour) >= 0;
+    svg += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="#1a1a1a" stroke-width="' + (isMajor ? "0.45" : "0.25") + '"/>';
+  }
+
+  DIAL_HOUR_LABELS.forEach(function (hour) {
+    const pos = polarToXY(cx, cy, rLabel, hourToDialAngle(hour));
+    const label = hour === 0 ? "0:00" : String(hour) + ":00";
+    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3) + '" text-anchor="middle" font-size="9" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+  });
+
+  const pinAngle = hourToDialAngle(activeHour);
+  const pin = polarToXY(cx, cy, rPin, pinAngle);
+  svg += dialPinMarkup(pin.x, pin.y, pinAngle);
+  svg += selectionDotMarkup(pin.x, pin.y);
+  return svg;
+}
+
+function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
+  const cx = 160;
+  const cy = 160;
+  const rOuter = 147;
+  const rInner = 128;
+  const rPin = (rOuter + rInner) / 2;
+  const tan = "#c1a98f";
+  const good = "#6e2435";
+  let svg = "";
+
+  for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+    const day = weekDayDate(dayIdx);
+    const slots = buildSlots(day.year, day.month, day.day);
+    const dayStart = weekDayStartAngle(dayIdx);
+    let acc = 0;
+
+    slots.forEach(function (slot) {
+      const dur = slot.end - slot.start;
+      const startFrac = acc / 24;
+      const endFrac = (acc + dur) / 24;
+      acc += dur;
+      const segStart = dayStart + startFrac * WEEK_DAY_SPAN;
+      const segEnd = dayStart + endFrac * WEEK_DAY_SPAN;
+      const fill = isGoodWineType(slot.type) ? good : tan;
+      svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter, rInner, segStart, segEnd, 0.35) + '" fill="' + fill + '"/>';
+    });
+
+    const dividerAngle = dayStart + WEEK_DAY_SPAN;
+    const d1 = polarToXY(cx, cy, rInner, dividerAngle);
+    const d2 = polarToXY(cx, cy, rOuter, dividerAngle);
+    svg += '<line x1="' + d1.x + '" y1="' + d1.y + '" x2="' + d2.x + '" y2="' + d2.y + '" stroke="#1a1a1a" stroke-width="0.35"/>';
+  }
+
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '" fill="none" stroke="#1a1a1a" stroke-width="0.5" stroke-dasharray="4 3"/>';
+
+  WEEKDAY_LABELS_DIAL.forEach(function (label, i) {
+    const pos = polarToXY(cx, cy, 153, weekDayAngle(i));
+    const weight = i === selectedDayIdx ? "700" : "400";
+    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3) + '" text-anchor="middle" font-size="9" font-weight="' + weight + '" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+  });
+
+  const selDay = weekDayDate(selectedDayIdx);
+  const selSlots = buildSlots(selDay.year, selDay.month, selDay.day);
+  const selAngles = slotAnglesInWeekDay(selectedDayIdx, selSlots, selectedSlotIdx);
+  const pinAngle = hourToWeekAngle(selectedDayIdx, displayHour);
+  svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter + 1, rInner - 1, selAngles.start, selAngles.end, 0.15) + '" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.8"/>';
+
+  const pin = polarToXY(cx, cy, rPin, pinAngle);
+  svg += dialPinMarkup(pin.x, pin.y, pinAngle);
+  svg += selectionDotMarkup(pin.x, pin.y);
+
+  return svg;
+}
+
+function dialPinMarkup(x, y, angleDeg) {
+  return (
+    '<g transform="translate(' + x + " " + y + ") rotate(" + (angleDeg + 90) + ')">' +
+    '<path d="M0,-9 C3.5,-4.5 3.5,2.5 0,8.5 C-3.5,2.5 -3.5,-4.5 0,-9 Z" fill="#1a1a1a"/>' +
+    '<circle cx="0" cy="1" r="2.8" fill="#f0e6d6" stroke="#1a1a1a" stroke-width="0.6"/>' +
+    "</g>"
+  );
+}
+
+function selectionDotMarkup(x, y) {
+  return (
+    '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.5"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="1.5" fill="#1a1a1a"/>'
+  );
+}
+
+function renderDayDialSvg(slots, activeHour) {
+  const cx = 160;
+  const cy = 160;
+  const rOuter = 140;
+  const rInner = 124;
+  const rLabel = 149;
+  const rPin = (rOuter + rInner) / 2;
+  const tan = "#c1a98f";
+  const good = "#6e2435";
+  let svg = "";
+
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="147" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
+  svg = renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLabel, rPin, tan, good);
+  return svg;
+}
+
+function updateDayDateLabels(y, m, d) {
+  const date = new Date(y, m, d);
+  const weekdayEl = document.getElementById("dayWeekday");
+  const dateShortEl = document.getElementById("dayDateShort");
+  if (weekdayEl) weekdayEl.textContent = WEEKDAY_NAMES_LONG[date.getDay()];
+  if (dateShortEl) dateShortEl.textContent = d + " " + MONTH_NAMES_LONG[m];
+}
+
+function formatDialCenterTime(y, m, d, activeSlot) {
+  if (isToday(y, m, d)) {
+    const now = new Date();
+    return now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
+  }
+  const end = activeSlot.end >= 24 ? 0 : activeSlot.end;
+  return formatHour(end);
+}
+
+function syncInputsToSelectedDate() {
+  const yearInput = document.getElementById("yearInput");
+  const monthSelect = document.getElementById("monthSelect");
+  if (yearInput) yearInput.value = String(selectedYear);
+  if (monthSelect) monthSelect.value = String(selectedMonth);
+  savePreferences();
+}
+
+function setSelectedDate(y, m, d) {
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  selectedYear = y;
+  selectedMonth = m;
+  selectedDay = Math.max(1, Math.min(d, daysInMonth));
+  syncInputsToSelectedDate();
+}
+
+function navigateSelectedDay(delta) {
+  const date = new Date(selectedYear, selectedMonth, selectedDay + delta);
+  setSelectedDate(date.getFullYear(), date.getMonth(), date.getDate());
+  dayClockHour = null;
+  if (viewMode === "day") renderDayView();
+}
+
+function navigateWeek(delta) {
+  if (!weekMonday) syncWeekFromSelectedDate();
+  weekMonday.setDate(weekMonday.getDate() + delta * 7);
+  weekSlotIndex = null;
+  weekDisplayHour = null;
+  const d = weekDayDate(weekDayIndex);
+  setSelectedDate(d.year, d.month, d.day);
+  renderWeekDialView();
+}
+
+function setViewMode(mode) {
+  if (mode !== "month" && mode !== "day" && mode !== "week") mode = "month";
+  viewMode = mode;
+
+  document.body.classList.remove("view-month", "view-day", "view-week");
+  document.body.classList.add("view-" + mode);
+
+  const footer = document.getElementById("dialViewFooter");
+  const dayBtn = document.getElementById("viewDayBtn");
+  const weekBtn = document.getElementById("viewWeekBtn");
+  if (footer) footer.hidden = mode === "month";
+  if (dayBtn) dayBtn.classList.toggle("is-active", mode === "day");
+  if (weekBtn) weekBtn.classList.toggle("is-active", mode === "week");
+
+  if (mode === "day") {
+    dayClockHour = null;
+    renderDayView();
+    startDialRefresh();
+  } else if (mode === "week") {
+    syncWeekFromSelectedDate();
+    weekSlotIndex = null;
+    weekDisplayHour = null;
+    renderWeekDialView();
+    startDialRefresh();
+  } else {
+    stopDialRefresh();
+    renderCalendar(selectedYear, selectedMonth);
+  }
+}
+
+function openDialViewForSelectedDay() {
+  closeBackdrop("dayModalBackdrop");
+  setViewMode("day");
+}
+
+function renderDayView() {
+  const dialEl = document.getElementById("dayDial");
+  const verdictEl = document.getElementById("dialVerdict");
+  const iconEl = document.getElementById("dialIcon");
+  const typeEl = document.getElementById("dialType");
+  const nextEl = document.getElementById("dialNextTime");
+
+  if (!dialEl) return;
+
+  const slots = buildSlots(selectedYear, selectedMonth, selectedDay);
+  const defaultHour = activeHourForDate(selectedYear, selectedMonth, selectedDay);
+  const displayHour = dayClockHour !== null ? dayClockHour : defaultHour;
+  const active = slotAtHour(slots, displayHour).slot;
+
+  updateDayDateLabels(selectedYear, selectedMonth, selectedDay);
+  dialEl.innerHTML = renderDayDialSvg(slots, displayHour);
+  updateDialCenter(verdictEl, iconEl, typeEl, nextEl, active, displayHour);
+}
+
+function renderWeekDialView() {
+  if (!weekMonday) syncWeekFromSelectedDate();
+
+  const dialEl = document.getElementById("weekDial");
+  const verdictEl = document.getElementById("weekDialVerdict");
+  const iconEl = document.getElementById("weekDialIcon");
+  const typeEl = document.getElementById("weekDialType");
+  const timeEl = document.getElementById("weekDialTime");
+  const rangeEl = document.getElementById("weekRangeText");
+  const startEl = document.getElementById("weekStartName");
+  const endEl = document.getElementById("weekEndName");
+
+  if (!dialEl) return;
+
+  const defaults = defaultWeekSelection(weekDayIndex);
+  const slotIndex = weekSlotIndex !== null ? weekSlotIndex : defaults.slotIndex;
+  const displayHour = weekDisplayHour !== null ? weekDisplayHour : defaults.displayHour;
+  const d = weekDayDate(weekDayIndex);
+  const slots = buildSlots(d.year, d.month, d.day);
+  const active = slots[slotIndex] || defaults.slot;
+
+  if (rangeEl) rangeEl.textContent = formatWeekRangeLabel(weekMonday);
+  if (startEl) startEl.textContent = "MAANDAG";
+  if (endEl) endEl.textContent = "ZONDAG";
+
+  dialEl.innerHTML = renderWeekDialSvg(weekDayIndex, slotIndex, displayHour);
+  updateDialCenter(verdictEl, iconEl, typeEl, timeEl, active, displayHour);
+}
+
+function handleDayDialPointer(e) {
+  const dayWrap = document.querySelector("#dayView .dial-wrap");
+  if (!dayWrap) return;
+  const hit = dialPointerHit(e, dayWrap);
+  if (hit.dist < 0.74 || hit.dist > 0.9) return;
+  dayClockHour = hit.hour;
+  renderDayView();
+}
+
+function handleWeekDialPointer(e) {
+  const weekWrap = document.getElementById("weekDialWrap");
+  if (!weekWrap) return;
+  const hit = dialPointerHit(e, weekWrap);
+  if (hit.dist < 0.78 || hit.dist > 0.94) return;
+  const picked = weekClickToSelection(hit.angle);
+  weekDayIndex = picked.dayIndex;
+  weekSlotIndex = picked.slotIndex;
+  weekDisplayHour = picked.displayHour;
+  const day = weekDayDate(weekDayIndex);
+  setSelectedDate(day.year, day.month, day.day);
+  renderWeekDialView();
+}
+
+function bindDialInteractions() {
+  const dayWrap = document.querySelector("#dayView .dial-wrap");
+  if (dayWrap && !dayWrap.dataset.bound) {
+    dayWrap.dataset.bound = "1";
+    dayWrap.style.cursor = "pointer";
+    dayWrap.style.touchAction = "none";
+    dayWrap.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      e.preventDefault();
+      handleDayDialPointer(e);
+    });
+  }
+
+  const weekWrap = document.getElementById("weekDialWrap");
+  if (weekWrap && !weekWrap.dataset.bound) {
+    weekWrap.dataset.bound = "1";
+    weekWrap.style.cursor = "pointer";
+    weekWrap.style.touchAction = "none";
+    weekWrap.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      e.preventDefault();
+      handleWeekDialPointer(e);
+    });
+  }
+}
+
+function startDialRefresh() {
+  stopDialRefresh();
+  dialRefreshTimer = setInterval(function () {
+    if (viewMode === "day") {
+      if (dayClockHour === null && isToday(selectedYear, selectedMonth, selectedDay)) {
+        renderDayView();
+      }
+    } else if (viewMode === "week") {
+      const d = weekDayDate(weekDayIndex);
+      if (weekSlotIndex === null && weekDisplayHour === null && isToday(d.year, d.month, d.day)) {
+        renderWeekDialView();
+      }
+    }
+  }, 1000);
+}
+
+function stopDialRefresh() {
+  if (dialRefreshTimer) {
+    clearInterval(dialRefreshTimer);
+    dialRefreshTimer = null;
+  }
+}
+
+function initSelectedDate(year, month) {
+  const today = new Date();
+  if (today.getFullYear() === year && today.getMonth() === month) {
+    setSelectedDate(year, month, today.getDate());
+  } else {
+    setSelectedDate(year, month, 1);
+  }
+}
+
 // ===== Weer (Open-Meteo + fallback) =====
 
 function dateKey(year, month, day) {
@@ -724,7 +1361,13 @@ function renderInventoryList() {
       wines.splice(index, 1);
       saveWines();
       renderInventoryList();
-      renderCalendar(currentYear, currentMonth);
+      if (viewMode === "month") {
+        renderCalendar(currentYear, currentMonth);
+      } else if (viewMode === "week") {
+        renderWeekDialView();
+      } else {
+        renderDayView();
+      }
     });
 
     row.appendChild(label);
@@ -799,6 +1442,7 @@ function renderCalendarDOM(year, month, weatherMap) {
 
     (function (d, m, y, s, w) {
       dayDiv.addEventListener("click", function () {
+        setSelectedDate(y, m, d);
         openDayModal(d, m, y, s, w);
       });
     })(day, month, year, slots, weather);
@@ -917,7 +1561,16 @@ function scheduleRender() {
   clearTimeout(renderDebounceTimer);
   renderDebounceTimer = setTimeout(function () {
     const selected = getSelectedYearMonth();
-    if (selected) renderCalendar(selected.year, selected.month);
+    if (!selected) return;
+    initSelectedDate(selected.year, selected.month);
+    if (viewMode === "month") {
+      renderCalendar(selected.year, selected.month);
+    } else if (viewMode === "week") {
+      syncWeekFromSelectedDate();
+      renderWeekDialView();
+    } else {
+      renderDayView();
+    }
   }, 200);
 }
 
@@ -965,8 +1618,45 @@ function initEventListeners() {
   document.body.addEventListener("click", function (e) {
     const target = e.target;
 
-    if (clickOnId(target, "helpBtn")) {
+    if (clickOnId(target, "helpBtn") || clickOnId(target, "dayHelpBtn") || clickOnId(target, "weekHelpBtn")) {
       openBackdrop("helpBackdrop");
+      return;
+    }
+    if (clickOnId(target, "dayInventoryBtn") || clickOnId(target, "weekInventoryBtn")) {
+      renderInventoryList();
+      openBackdrop("inventoryBackdrop");
+      return;
+    }
+    if (clickOnId(target, "weekMonthBtn")) {
+      setViewMode("month");
+      return;
+    }
+    if (clickOnId(target, "prevWeekBtn")) {
+      navigateWeek(-1);
+      return;
+    }
+    if (clickOnId(target, "nextWeekBtn")) {
+      navigateWeek(1);
+      return;
+    }
+    if (clickOnId(target, "openDialViewBtn")) {
+      openDialViewForSelectedDay();
+      return;
+    }
+    if (clickOnId(target, "dayWeekBtn") || clickOnId(target, "viewWeekBtn")) {
+      setViewMode("week");
+      return;
+    }
+    if (clickOnId(target, "viewDayBtn")) {
+      setViewMode("day");
+      return;
+    }
+    if (clickOnId(target, "prevDayBtn")) {
+      navigateSelectedDay(-1);
+      return;
+    }
+    if (clickOnId(target, "nextDayBtn")) {
+      navigateSelectedDay(1);
       return;
     }
     if (target.id === "helpClose") {
@@ -1019,7 +1709,13 @@ function initEventListeners() {
       document.getElementById("wineRegionInput").value = "";
       document.getElementById("wineStyleInput").value = "aromatisch";
       renderInventoryList();
-      renderCalendar(currentYear, currentMonth);
+      if (viewMode === "month") {
+        renderCalendar(currentYear, currentMonth);
+      } else if (viewMode === "week") {
+        renderWeekDialView();
+      } else {
+        renderDayView();
+      }
     }
   });
 }
@@ -1029,10 +1725,13 @@ function bootApp() {
   loadLocation();
   loadPreferences();
   initEventListeners();
+  bindDialInteractions();
 
   const selected = getSelectedYearMonth();
   if (selected) {
-    renderCalendar(selected.year, selected.month);
+    initSelectedDate(selected.year, selected.month);
+    syncWeekFromSelectedDate();
+    setViewMode("month");
   }
 
   const placeInput = document.getElementById("locationInput").value.trim();
