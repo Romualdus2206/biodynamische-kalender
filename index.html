@@ -5,174 +5,166 @@
   <title>Biodynamische kalender – tijdvakken</title>
 
   <style>
-    :root {
-      --fruit-bg: #ffe5e5;
-      --fruit-fg: #b30000;
-      --flower-bg: #e8f4ff;
-      --flower-fg: #0050a3;
-      --leaf-bg: #e6f7ea;
-      --leaf-fg: #1f7a3a;
-      --root-bg: #f3e7d9;
-      --root-fg: #8a4b12;
-    }
 
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 20px;
-      background: #f7f7f7;
-      color: #222;
-      font-size: 16px;
-    }
+:root {
+  --fruit-bg: #ffe5e5;
+  --fruit-fg: #b30000;
+  --flower-bg: #e8f4ff;
+  --flower-fg: #0050a3;
+  --leaf-bg: #e6f7ea;
+  --leaf-fg: #1f7a3a;
+  --root-bg: #f3e7d9;
+  --root-fg: #8a4b12;
+}
 
-    h1 { margin-bottom: 0.2rem; display:flex; align-items:center; gap:6px; }
-    #helpIcon { cursor:pointer; font-size:1.2rem; }
-    .subtitle { color:#666; margin-bottom:1rem; }
+body {
+  font-family: system-ui, sans-serif;
+  margin: 20px;
+  background: #f7f7f7;
+  color: #222;
+  font-size: 16px;
+}
 
-    .controls {
-      display:flex;
-      gap:0.5rem;
-      flex-wrap:wrap;
-      margin-bottom:1rem;
-      align-items:center;
-    }
+h1 { margin-bottom: 0.2rem; display:flex; align-items:center; gap:6px; }
+#helpIcon { cursor:pointer; font-size:1.2rem; }
+.subtitle { color:#666; margin-bottom:1rem; }
 
-    select, input, button {
-      padding:0.3rem 0.5rem;
-      font-size:0.9rem;
-    }
+.controls {
+  display:flex;
+  gap:0.5rem;
+  flex-wrap:wrap;
+  margin-bottom:1rem;
+  align-items:center;
+}
 
-    button { cursor:pointer; }
+select, input, button {
+  padding:0.3rem 0.5rem;
+  font-size:0.9rem;
+}
 
-    /* --- Kalender container --- */
-    .calendar {
-      background:#fff;
-      border-radius:8px;
-      padding:10px;
-      box-shadow:0 1px 3px rgba(0,0,0,0.08);
-      overflow-y:auto;
-      max-height:80vh;
-    }
+button { cursor:pointer; }
 
-    /* --- Week grid (desktop default: 7 kolommen) --- */
-    .week {
-      display:grid;
-      grid-template-columns:repeat(7, 1fr);
-      gap:4px;
-      margin-bottom:8px;
-      min-width:900px;
-      overflow-x:auto;
-      padding-bottom:6px;
-    }
+/* --- Kalender container --- */
+.calendar {
+  background:#fff;
+  border-radius:8px;
+  padding:10px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.08);
+  overflow-y:auto;
+  max-height:80vh;
+}
 
-    .week::-webkit-scrollbar {
-      height:6px;
-    }
+/* --- Week grid (desktop default: 7 kolommen) --- */
+.week {
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:4px;
+  margin-bottom:8px;
+  min-width:900px;
+  overflow-x:auto;
+  padding-bottom:6px;
+}
 
-    .week::-webkit-scrollbar-thumb {
-      background:#ccc;
-      border-radius:3px;
-    }
+.weekdays {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+  min-width:900px;
+  margin-bottom:6px;
+}
 
-    .weekdays {
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:4px;
-      min-width:900px;
-      margin-bottom:6px;
-    }
+.weekdays div {
+  text-align:center;
+  font-size:0.8rem;
+  font-weight:600;
+  color:#666;
+  padding-bottom:4px;
+}
 
-    .weekdays div {
-      text-align:center;
-      font-size:0.8rem;
-      font-weight:600;
-      color:#666;
-      padding-bottom:4px;
-    }
+/* --- Dagtegel --- */
+.day {
+  min-height:240px;
+  max-height:240px;
+  border-radius:6px;
+  padding:6px;
+  font-size:0.7rem;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  box-sizing:border-box;
+  cursor:pointer;
+  overflow:hidden;
+  position:relative;
+}
 
-    /* --- Dagtegel --- */
-    .day {
-      min-height:240px;
-      max-height:240px;
-      border-radius:6px;
-      padding:6px;
-      font-size:0.7rem;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      box-sizing:border-box;
-      cursor:pointer;
-      overflow:hidden;
-      position:relative;
-    }
+.day.empty {
+  background:transparent;
+  border:none;
+  cursor:default;
+}
 
-    .day.empty {
-      background:transparent;
-      border:none;
-      cursor:default;
-    }
+.day-number {
+  font-weight:700;
+  font-size:0.95rem;
+  margin-bottom:2px;
+}
 
-    .day-number {
-      font-weight:700;
-      font-size:0.95rem;
-      margin-bottom:2px;
-    }
+.day-content {
+  font-size:0.7rem;
+  line-height:1.28;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  display:-webkit-box;
+  -webkit-line-clamp:14;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
 
-    .day-content {
-      font-size:0.7rem;
-      line-height:1.28;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      display:-webkit-box;
-      -webkit-line-clamp:14;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
+.day-weather {
+  font-size:0.7rem;
+  margin-bottom:2px;
+}
 
-    .day-weather {
-      font-size:0.7rem;
-      margin-bottom:2px;
-    }
+.slot-block { margin-bottom:6px; }
+.slot-title { font-weight:600; margin-bottom:1px; }
+.slot-conclusion { margin-bottom:1px; }
+.slot-wines { margin-left:8px; }
 
-    .slot-block { margin-bottom:6px; }
-    .slot-title { font-weight:600; margin-bottom:1px; }
-    .slot-conclusion { margin-bottom:1px; }
-    .slot-wines { margin-left:8px; }
+/* Kleuren */
+.fruit  { background:var(--fruit-bg); color:var(--fruit-fg); }
+.flower { background:var(--flower-bg); color:var(--flower-fg); }
+.leaf   { background:var(--leaf-bg); color:var(--leaf-fg); }
+.root   { background:var(--root-bg); color:var(--root-fg); }
 
-    /* Kleuren */
-    .fruit  { background:var(--fruit-bg); color:var(--fruit-fg); }
-    .flower { background:var(--flower-bg); color:var(--flower-fg); }
-    .leaf   { background:var(--leaf-bg); color:var(--leaf-fg); }
-    .root   { background:var(--root-bg); color:var(--root-fg); }
+/* --- iPhone layout: 3 kolommen + min-width 200px + horizontale scroll per week --- */
+@media (max-width: 480px) {
 
-    /* --- iPhone layout: 3 kolommen + min-width 200px + horizontale scroll per week --- */
-    @media (max-width: 480px) {
+  .calendar {
+    overflow-y:scroll !important;
+  }
 
-      .calendar {
-        overflow-y:scroll !important;
-      }
+  .weekdays {
+    grid-template-columns:repeat(3,1fr) !important;
+    min-width:650px !important;
+  }
 
-      .weekdays {
-        grid-template-columns:repeat(3,1fr) !important;
-        min-width:650px !important;
-      }
+  .week {
+    grid-template-columns:repeat(3,1fr) !important;
+    min-width:650px !important;
+    overflow-x:scroll !important;
+  }
 
-      .week {
-        grid-template-columns:repeat(3,1fr) !important;
-        min-width:650px !important;
-        overflow-x:scroll !important;
-      }
+  .day {
+    min-width:200px !important;
+    max-width:240px !important;
+    min-height:260px !important;
+  }
 
-      .day {
-        min-width:200px !important;
-        max-width:240px !important;
-        min-height:260px !important;
-      }
-
-      .day-content {
-        -webkit-line-clamp:12 !important;
-      }
-    }
+  .day-content {
+    -webkit-line-clamp:12 !important;
+  }
+}
 
   </style>
 </head>
