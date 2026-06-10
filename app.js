@@ -203,7 +203,24 @@ function buildLocalWeatherMap(year, month) {
   return map;
 }
 
-// ===== Biodynamische kalender (maan in dierenriem) =====
+// ===== Biodynamische kalender (Maria Thun-benadering) =====
+
+const CONSTELLATION_NAMES = [
+  "Ram", "Stier", "Tweelingen", "Kreeft", "Leeuw", "Maagd",
+  "Weegschaal", "Schorpioen", "Boogschutter", "Steenbok", "Waterman", "Vissen"
+];
+
+// Grenzen langs de ecliptica (J2000, tropisch), afgeleid van IAU-constellatiegrenzen.
+// Schorpioen omvat het Ophiuchus-tracé (12-sterrenbeeldensysteem van Thun).
+const CONSTELLATION_BOUNDS_TROPICAL = [
+  28.687, 53.417, 90.140, 117.988, 138.038, 173.851,
+  217.810, 241.047, 266.238, 299.656, 327.488, 351.650
+];
+
+const CONSTELLATION_TYPES = [
+  "fruit", "root", "flower", "leaf", "fruit", "root",
+  "flower", "leaf", "fruit", "root", "flower", "leaf"
+];
 
 function toJulianDate(date) {
   return date.getTime() / 86400000 + 2440587.5;
@@ -211,6 +228,11 @@ function toJulianDate(date) {
 
 function normalizeDegrees(deg) {
   return ((deg % 360) + 360) % 360;
+}
+
+function faganBradleyAyanamsa(date) {
+  const T = (toJulianDate(date) - 2451545.0) / 36525;
+  return 24.7403 + (5028.796195 * T + 1.1054348 * T * T) / 3600;
 }
 
 function moonEclipticLongitude(date) {
@@ -262,19 +284,37 @@ function moonEclipticLongitude(date) {
   return normalizeDegrees(lambda);
 }
 
-function zodiacSign(longitude) {
-  return Math.floor(normalizeDegrees(longitude) / 30) % 12;
+function moonSiderealLongitude(date) {
+  return normalizeDegrees(moonEclipticLongitude(date) - faganBradleyAyanamsa(date));
 }
 
-function typeFromSign(sign) {
-  // Vuur (ram, leeuw, boogschutter) → vrucht
-  if (sign === 0 || sign === 4 || sign === 8) return "fruit";
-  // Aarde (stier, maagd, steenbok) → wortel
-  if (sign === 1 || sign === 5 || sign === 9) return "root";
-  // Lucht (tweelingen, weegschaal, waterman) → bloem
-  if (sign === 2 || sign === 6 || sign === 10) return "flower";
-  // Water (kreeft, schorpioen, vissen) → blad
-  return "leaf";
+function siderealConstellationBounds(date) {
+  const ay = faganBradleyAyanamsa(date);
+  return CONSTELLATION_BOUNDS_TROPICAL.map(function (bound) {
+    return normalizeDegrees(bound - ay);
+  });
+}
+
+function constellationIndex(siderealLon, bounds) {
+  const lon = normalizeDegrees(siderealLon);
+
+  if (lon >= bounds[11] || lon < bounds[0]) {
+    return 11;
+  }
+
+  for (let i = 10; i >= 0; i--) {
+    if (lon >= bounds[i]) return i;
+  }
+
+  return 0;
+}
+
+function typeFromConstellation(index) {
+  return CONSTELLATION_TYPES[index];
+}
+
+function constellationName(index) {
+  return CONSTELLATION_NAMES[index] || "Onbekend";
 }
 
 function typeLabel(type) {
@@ -304,14 +344,16 @@ function formatSlotRange(slot) {
   return `${formatHour(slot.start)}–${formatSlotEnd(slot.end)}`;
 }
 
-function findTransitionTime(from, to, signBefore) {
+function findTransitionTime(from, to, constellationBefore) {
   let lo = from.getTime();
   let hi = to.getTime();
 
   while (hi - lo > 60000) {
     const mid = (lo + hi) / 2;
-    const sign = zodiacSign(moonEclipticLongitude(new Date(mid)));
-    if (sign !== signBefore) hi = mid;
+    const midDate = new Date(mid);
+    const bounds = siderealConstellationBounds(midDate);
+    const idx = constellationIndex(moonSiderealLongitude(midDate), bounds);
+    if (idx !== constellationBefore) hi = mid;
     else lo = mid;
   }
 
@@ -324,29 +366,34 @@ function buildSlots(year, month, day) {
 
   const slots = [];
   let slotStart = dayStart;
-  let currentSign = zodiacSign(moonEclipticLongitude(dayStart));
-  let currentType = typeFromSign(currentSign);
+  const startBounds = siderealConstellationBounds(dayStart);
+  let currentConst = constellationIndex(moonSiderealLongitude(dayStart), startBounds);
+  let currentType = typeFromConstellation(currentConst);
 
   let probe = new Date(dayStart.getTime() + 30 * 60000);
 
   while (probe <= dayEnd) {
-    const sign = zodiacSign(moonEclipticLongitude(probe));
-    if (sign !== currentSign) {
-      const transition = findTransitionTime(slotStart, probe, currentSign);
+    const probeBounds = siderealConstellationBounds(probe);
+    const idx = constellationIndex(moonSiderealLongitude(probe), probeBounds);
+    if (idx !== currentConst) {
+      const transition = findTransitionTime(slotStart, probe, currentConst);
       slots.push({
         type: currentType,
+        constellation: constellationName(currentConst),
         start: toDecimalHour(slotStart),
         end: toDecimalHour(transition)
       });
       slotStart = transition;
-      currentSign = zodiacSign(moonEclipticLongitude(transition));
-      currentType = typeFromSign(currentSign);
+      const transBounds = siderealConstellationBounds(transition);
+      currentConst = constellationIndex(moonSiderealLongitude(transition), transBounds);
+      currentType = typeFromConstellation(currentConst);
     }
     probe = new Date(probe.getTime() + 30 * 60000);
   }
 
   slots.push({
     type: currentType,
+    constellation: constellationName(currentConst),
     start: toDecimalHour(slotStart),
     end: 24
   });
@@ -821,7 +868,10 @@ function openDayModal(day, month, year, slots, weather) {
   weatherEl.textContent = weatherDetail(weather);
 
   slotsEl.innerHTML = slots
-    .map(s => `${formatSlotRange(s)}: ${typeLabel(s.type)}`)
+    .map(function (s) {
+      const name = s.constellation || "";
+      return formatSlotRange(s) + ": " + name + " · " + typeLabel(s.type);
+    })
     .join("<br>");
 
   adviceEl.innerHTML = slots
