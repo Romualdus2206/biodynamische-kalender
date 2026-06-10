@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Biodynamische kalender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css?v=15" />
+</head>
+<body>
+
+  <div class="page-header">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Biodynamische kalender</h1>
+        <p class="subtitle">Tijdvakken, biodynamische dag en wijnadvies</p>
+      </div>
+      <button type="button" id="helpBtn" class="icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
+    </header>
+
+    <section class="controls">
+      <div class="controls-row">
+        <label class="field-year">
+          Jaar
+          <input type="number" id="yearInput" min="2000" max="2100" inputmode="numeric" value="2026" />
+        </label>
+
+        <label class="field-month">
+          Maand
+          <select id="monthSelect">
+            <option value="0">Januari</option>
+            <option value="1">Februari</option>
+            <option value="2">Maart</option>
+            <option value="3">April</option>
+            <option value="4">Mei</option>
+            <option value="5" selected>Juni</option>
+            <option value="6">Juli</option>
+            <option value="7">Augustus</option>
+            <option value="8">September</option>
+            <option value="9">Oktober</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+          </select>
+        </label>
+
+        <label class="field-place">
+          Plaats
+          <input type="text" id="locationInput" value="Rotterdam" />
+        </label>
+      </div>
+
+      <button type="button" id="inventoryBtn" class="primary-btn inventory-btn">Wijnvoorraad beheren</button>
+      <span id="weatherStatus" class="weather-status"></span>
+    </section>
+  </div>
+
+  <main class="calendar-wrapper">
+    <div class="month-pan">
+      <div class="month-board">
+        <div class="weekdays">
+          <div>Ma</div>
+          <div>Di</div>
+          <div>Wo</div>
+          <div>Do</div>
+          <div>Vr</div>
+          <div>Za</div>
+          <div>Zo</div>
+        </div>
+        <div id="weeksContainer"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="backdrop" id="dayModalBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2 id="dayModalTitle"></h2>
+        <button type="button" class="icon-btn" id="dayModalClose" aria-label="Sluiten">✕</button>
+      </header>
+      <div class="modal-body">
+        <h3>Weer & luchtdruk</h3>
+        <p id="dayModalWeather"></p>
+        <h3>Tijdvakken & biodynamische dag</h3>
+        <div id="dayModalSlots"></div>
+        <h3>Wijnadvies per tijdvak</h3>
+        <div id="dayModalAdvice"></div>
+        <h3>Aanbevolen flessen per tijdvak</h3>
+        <div id="dayModalWines"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="backdrop" id="helpBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2>Uitleg van het wijnadvies</h2>
+        <button type="button" class="icon-btn" id="helpClose" aria-label="Sluiten">✕</button>
+      </header>
+      <div class="modal-body">
+        <p><strong>Biodynamische dag</strong></p>
+        <p>De dagtypes worden berekend op basis van de maan in het dierenriemteken:</p>
+        <ul>
+          <li><strong>Vruchtendag</strong> (vuur) – aromatische en fruitige wijnen openen vaak mooier.</li>
+          <li><strong>Bloemdag</strong> (lucht) – elegante, verfijnde wijnen tonen meer nuance.</li>
+          <li><strong>Bladdag</strong> (water) – frisse wijnen kunnen wat vlakker overkomen.</li>
+          <li><strong>Worteldag</strong> (aarde) – tanninerijke wijnen kunnen strenger smaken.</li>
+        </ul>
+        <p><strong>Weer</strong> komt van Open-Meteo. Voorspelling is realistisch tot maximaal 14 dagen vooruit; daarna staat "nog niet bekend".</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="backdrop" id="inventoryBackdrop">
+    <div class="modal">
+      <header class="modal-header">
+        <h2>Wijnvoorraad beheren</h2>
+        <button type="button" class="icon-btn" id="inventoryClose" aria-label="Sluiten">✕</button>
+      </header>
+      <div class="modal-body">
+        <div id="inventoryList" class="inventory-list"></div>
+        <hr />
+        <h3>Nieuwe fles toevoegen</h3>
+        <div class="form-grid">
+          <label>
+            Naam
+            <input type="text" id="wineNameInput" placeholder="Sancerre 2022" />
+          </label>
+          <label>
+            Druif
+            <input type="text" id="wineGrapeInput" placeholder="Sauvignon Blanc" />
+          </label>
+          <label>
+            Regio
+            <input type="text" id="wineRegionInput" placeholder="Loire" />
+          </label>
+          <label>
+            Stijl
+            <select id="wineStyleInput">
+              <option value="aromatisch">Aromatisch</option>
+              <option value="elegant">Elegant</option>
+              <option value="fris">Fris</option>
+              <option value="tanninerijk">Tanninerijk</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="addWineBtn" class="primary-btn">Fles toevoegen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=7"></script>
+</body>
+</html>
