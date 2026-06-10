@@ -1,0 +1,362 @@
+:root {
+  --fruit-bg: #ffe5e5;
+  --fruit-fg: #b30000;
+  --flower-bg: #e8f4ff;
+  --flower-fg: #0050a3;
+  --leaf-bg: #e6f7ea;
+  --leaf-fg: #1f7a3a;
+  --root-bg: #f3e7d9;
+  --root-fg: #8a4b12;
+
+  --border-soft: #e0e0e0;
+  --text-main: #222;
+  --text-muted: #666;
+  --accent: #0050a3;
+  --bg-main: #f7f7f7;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* Topbar */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.topbar-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons */
+
+.primary-btn {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #003f82;
+}
+
+.icon-btn {
+  border: none;
+  background: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px var(--border-soft);
+}
+
+/* Controls */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.controls label {
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.controls input,
+.controls select {
+  padding: 4px 6px;
+  font-size: 0.85rem;
+}
+
+/* Calendar */
+
+.calendar-wrapper {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+#weeksContainer {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.day {
+  min-height: 220px;
+  max-height: 220px;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.day.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.day-weather {
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+}
+
+.day-content {
+  font-size: 0.7rem;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 14;
+  -webkit-box-orient: vertical;
+}
+
+.slot-block {
+  margin-bottom: 4px;
+}
+
+.slot-title {
+  font-weight: 600;
+}
+
+.slot-conclusion {
+  margin-bottom: 1px;
+}
+
+.slot-wines {
+  margin-left: 6px;
+}
+
+/* Colors */
+
+.day.fruit {
+  background: var(--fruit-bg);
+  color: var(--fruit-fg);
+}
+
+.day.flower {
+  background: var(--flower-bg);
+  color: var(--flower-fg);
+}
+
+.day.leaf {
+  background: var(--leaf-bg);
+  color: var(--leaf-fg);
+}
+
+.day.root {
+  background: var(--root-bg);
+  color: var(--root-fg);
+}
+
+/* Modals */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 92%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.modal-body {
+  padding: 10px 12px 12px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.modal-body h3 {
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Inventory */
+
+.inventory-list {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.inventory-item:last-child {
+  border-bottom: none;
+}
+
+.inventory-remove {
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+/* Forms */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.form-grid label {
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-grid input,
+.form-grid select {
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+
+/* Mobile tweaks */
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .calendar-wrapper {
+    max-height: none;
+  }
+
+  .week {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .weekdays {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .day {
+    min-height: 240px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
