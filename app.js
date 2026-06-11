@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.3";
+const APP_VERSION = "1.0.4";
 
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",
@@ -658,10 +658,11 @@ function typeDecorSvg(type) {
   }
   if (type === "root") {
     return '<g opacity="0.95">' +
-      '<path d="M10 10 Q7 8 8 6 Q10 7 11 9 M16 10 Q19 8 18 6 Q16 7 15 9" fill="none" stroke="' + stroke + '" stroke-width="0.9" stroke-linecap="round"/>' +
-      '<path d="M13 12 Q9 14 8.5 20 Q8 28 10 34 Q11.5 37 13 38 Q14.5 37 16 34 Q18 28 17.5 20 Q17 14 13 12 Z" fill="' + fill + '" opacity="0.4" stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"/>' +
-      '<path d="M13 14 L13 36" stroke="' + stroke + '" stroke-width="0.8" fill="none" opacity="0.7"/>' +
-      '<path d="M13 22 Q16 24 17 28 M13 26 Q10 28 9 32" stroke="' + stroke + '" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.8"/>' +
+      '<path d="M7 11 Q9 6 11 9 Q13 5 15 9 Q17 6 19 11 Q16 9 13 10 Q10 9 7 11" fill="' + fillSoft + '" opacity="0.65" stroke="' + stroke + '" stroke-width="0.75"/>' +
+      '<path d="M10 10 Q13 4 16 10 M12 10 Q13 7 14 10" stroke="' + stroke + '" stroke-width="0.8" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 12 L9.5 19 Q8.5 26 9.5 32 Q10.5 37 13 38.5 Q15.5 37 16.5 32 Q17.5 26 16.5 19 Z" fill="' + fill + '" opacity="0.55" stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"/>' +
+      '<path d="M13 14 L13 36" stroke="' + stroke + '" stroke-width="0.7" fill="none" opacity="0.5"/>' +
+      '<path d="M11 22 Q13 24 15 22 M10.5 28 Q13 30 15.5 28" stroke="' + stroke + '" stroke-width="0.65" fill="none" stroke-linecap="round" opacity="0.75"/>' +
       "</g>";
   }
   return "";
@@ -671,10 +672,10 @@ function redWineGlassSvg(isGood, type) {
   const decor = typeDecorSvg(type);
   const decorCenterX = 13;
   const decorCenterY = 22;
-  const leftDecorX = 26;
-  const rightDecorX = 94;
+  const leftDecorX = 14;
+  const rightDecorX = 122;
   const decorScale = 1.45;
-  const gx = 18;
+  const gx = 26;
   const wineFill = isGood
     ? '<path d="M' + (34 + gx) + ' 16 C' + (38 + gx) + " 15 " + (46 + gx) + " 15 " + (50 + gx) + ' 16 C' + (52 + gx) + " 24 " + (51 + gx) + " 32 " + (48 + gx) + " 37 C" + (45 + gx) + " 40 " + (39 + gx) + " 40 " + (36 + gx) + " 37 C" + (33 + gx) + " 32 " + (32 + gx) + " 24 " + (34 + gx) + ' 16 Z" fill="#7a2332"/>' +
       '<path d="M' + (35 + gx) + " 18 C" + (38 + gx) + " 17.5 " + (46 + gx) + " 17.5 " + (49 + gx) + " 18 C" + (50 + gx) + " 22 " + (49 + gx) + " 27 " + (46.5 + gx) + " 30 C" + (44 + gx) + " 32 " + (40 + gx) + " 32 " + (37.5 + gx) + " 30 C" + (35 + gx) + " 27 " + (34 + gx) + " 22 " + (35 + gx) + ' 18 Z" fill="#5c1828" opacity="0.85"/>'
@@ -691,7 +692,7 @@ function redWineGlassSvg(isGood, type) {
   }
 
   return (
-    '<svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<svg viewBox="0 0 136 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
     decorSideMarkup(false) +
     decorSideMarkup(true) +
     '<path d="M' + (34 + gx) + " 13 C" + (34 + gx) + " 11 " + (50 + gx) + " 11 " + (50 + gx) + " 13 C" + (52 + gx) + " 21 " + (51 + gx) + " 29 " + (48 + gx) + " 34 C" + (46 + gx) + " 37 " + (38 + gx) + " 37 " + (36 + gx) + " 34 C" + (33 + gx) + " 29 " + (32 + gx) + " 21 " + (34 + gx) + ' 13 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
@@ -700,10 +701,6 @@ function redWineGlassSvg(isGood, type) {
     '<ellipse cx="' + (42 + gx) + '" cy="55" rx="6.5" ry="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>' +
     "</svg>"
   );
-}
-
-function weekDayAngle(dayIndex) {
-  return -90 + dayIndex * (360 / 7);
 }
 
 function mondayOfWeek(y, m, d) {
@@ -750,10 +747,19 @@ function formatDialDateTime(day, month, hour) {
   return day + " " + monthLabel + " " + h + ":" + String(m).padStart(2, "0");
 }
 
-const WEEK_DAY_SPAN = 360 / 7;
+const WEEK_DAY_GAP = 3.2;
+const WEEK_DAY_SPAN = (360 - 7 * WEEK_DAY_GAP) / 7;
+
+function weekSectorStartDial(dayIndex) {
+  return dayIndex * (WEEK_DAY_SPAN + WEEK_DAY_GAP);
+}
+
+function weekDayAngle(dayIndex) {
+  return weekSectorStartDial(dayIndex) + WEEK_DAY_SPAN / 2 - 90;
+}
 
 function weekDayStartAngle(dayIndex) {
-  return weekDayAngle(dayIndex) - WEEK_DAY_SPAN / 2;
+  return weekSectorStartDial(dayIndex) - 90;
 }
 
 function dialPointerHit(event, wrap) {
@@ -769,10 +775,34 @@ function dialPointerHit(event, wrap) {
 }
 
 function weekClickToSelection(angle) {
-  const rel = (angle + WEEK_DAY_SPAN / 2) % 360;
-  const dayIndex = Math.floor(rel / WEEK_DAY_SPAN) % 7;
-  const posInDay = rel - dayIndex * WEEK_DAY_SPAN;
-  const frac = posInDay / WEEK_DAY_SPAN;
+  const norm = ((angle % 360) + 360) % 360;
+  let dayIndex = 0;
+  let frac = 0;
+
+  let found = false;
+  for (let i = 0; i < 7; i++) {
+    const start = weekSectorStartDial(i);
+    const end = start + WEEK_DAY_SPAN;
+    if (norm >= start && norm < end) {
+      dayIndex = i;
+      frac = (norm - start) / WEEK_DAY_SPAN;
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    let bestDist = Infinity;
+    for (let i = 0; i < 7; i++) {
+      const center = weekSectorStartDial(i) + WEEK_DAY_SPAN / 2;
+      let dist = Math.abs(norm - center);
+      if (dist > 180) dist = 360 - dist;
+      if (dist < bestDist) {
+        bestDist = dist;
+        dayIndex = i;
+        frac = 0.5;
+      }
+    }
+  }
 
   const day = weekDayDate(dayIndex);
   const slots = buildSlots(day.year, day.month, day.day);
@@ -861,7 +891,7 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
   slots.forEach(function (slot) {
     const end = slot.end >= 24 ? 24 : slot.end;
     const fill = isGoodWineType(slot.type) ? good : tan;
-    svg += '<path d="' + ringSegmentPath(cx, cy, rOuter, rInner, slot.start, end, 0.15) + '" fill="' + fill + '"/>';
+    svg += '<path d="' + ringSegmentPath(cx, cy, rOuter, rInner, slot.start, end, 0.55) + '" fill="' + fill + '"/>';
   });
 
   const active = slotAtHour(slots, activeHour).slot;
@@ -877,16 +907,16 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
 
   for (let hour = 0; hour < 24; hour++) {
     const a = hourToDialAngle(hour);
-    const p1 = polarToXY(cx, cy, rInner - 1, a);
-    const p2 = polarToXY(cx, cy, rOuter + 1, a);
     const isMajor = DIAL_HOUR_LABELS.indexOf(hour) >= 0;
-    svg += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="#1a1a1a" stroke-width="' + (isMajor ? "0.45" : "0.25") + '"/>';
+    const p1 = polarToXY(cx, cy, rInner - (isMajor ? 2 : 1), a);
+    const p2 = polarToXY(cx, cy, rOuter + (isMajor ? 2 : 1), a);
+    svg += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="#1a1a1a" stroke-width="' + (isMajor ? "0.55" : "0.3") + '"/>';
   }
 
   DIAL_HOUR_LABELS.forEach(function (hour) {
     const pos = polarToXY(cx, cy, rLabel, hourToDialAngle(hour));
     const label = hour === 0 ? "0:00" : String(hour) + ":00";
-    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3) + '" text-anchor="middle" font-size="9" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3.5) + '" text-anchor="middle" font-size="10" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
   });
 
   const pin = polarToXY(cx, cy, rPin, pinAngle);
@@ -898,12 +928,15 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
 function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
   const cx = 160;
   const cy = 160;
-  const rOuter = 147;
-  const rInner = 128;
+  const rOuter = 143;
+  const rInner = 118;
+  const rLabel = 158;
   const rPin = (rOuter + rInner) / 2;
   const tan = "#c1a98f";
   const good = "#6e2435";
   let svg = "";
+
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rOuter + 7) + '" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
 
   for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
     const day = weekDayDate(dayIdx);
@@ -919,21 +952,14 @@ function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
       const segStart = dayStart + startFrac * WEEK_DAY_SPAN;
       const segEnd = dayStart + endFrac * WEEK_DAY_SPAN;
       const fill = isGoodWineType(slot.type) ? good : tan;
-      svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter, rInner, segStart, segEnd, 0.35) + '" fill="' + fill + '"/>';
+      svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter, rInner, segStart, segEnd, 0.55) + '" fill="' + fill + '"/>';
     });
-
-    const dividerAngle = dayStart + WEEK_DAY_SPAN;
-    const d1 = polarToXY(cx, cy, rInner, dividerAngle);
-    const d2 = polarToXY(cx, cy, rOuter, dividerAngle);
-    svg += '<line x1="' + d1.x + '" y1="' + d1.y + '" x2="' + d2.x + '" y2="' + d2.y + '" stroke="#1a1a1a" stroke-width="0.35"/>';
   }
 
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '" fill="none" stroke="#1a1a1a" stroke-width="0.5" stroke-dasharray="4 3"/>';
-
   WEEKDAY_LABELS_DIAL.forEach(function (label, i) {
-    const pos = polarToXY(cx, cy, 153, weekDayAngle(i));
+    const pos = polarToXY(cx, cy, rLabel, weekDayAngle(i));
     const weight = i === selectedDayIdx ? "700" : "400";
-    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3) + '" text-anchor="middle" font-size="9" font-weight="' + weight + '" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3.5) + '" text-anchor="middle" font-size="10" font-weight="' + weight + '" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
   });
 
   const selDay = weekDayDate(selectedDayIdx);
@@ -979,15 +1005,15 @@ function selectionDotMarkup(x, y, onDark) {
 function renderDayDialSvg(slots, activeHour) {
   const cx = 160;
   const cy = 160;
-  const rOuter = 140;
-  const rInner = 124;
-  const rLabel = 149;
+  const rOuter = 143;
+  const rInner = 118;
+  const rLabel = 158;
   const rPin = (rOuter + rInner) / 2;
   const tan = "#c1a98f";
   const good = "#6e2435";
   let svg = "";
 
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="147" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rOuter + 7) + '" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
   svg = renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLabel, rPin, tan, good);
   return svg;
 }

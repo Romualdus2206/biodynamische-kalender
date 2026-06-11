@@ -449,9 +449,9 @@ body.view-month {
 }
 
 .dial-icon {
-  width: min(88%, 168px);
+  width: min(96%, 180px);
   height: auto;
-  aspect-ratio: 120 / 72;
+  aspect-ratio: 136 / 72;
   margin: 2px 0 0;
 }
 
@@ -813,6 +813,8 @@ body.view-month .month-view.calendar-wrapper {
   width: 94%;
   max-height: 92dvh;
   background: var(--parchment, #f0e6d6);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .modal-header-parchment {
@@ -865,8 +867,8 @@ body.view-month .month-view.calendar-wrapper {
 }
 
 .wm-view-toggle {
-  padding: 18px 0 max(10px, env(safe-area-inset-bottom));
-  margin-top: 14px;
+  padding: 28px 0 max(12px, env(safe-area-inset-bottom));
+  margin-top: 24px;
   width: 100%;
   flex-shrink: 0;
 }
