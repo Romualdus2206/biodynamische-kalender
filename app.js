@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.1";
+const APP_VERSION = "1.0.2";
 
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",
@@ -646,19 +646,23 @@ function typeDecorSvg(type) {
 
 function redWineGlassSvg(isGood, type) {
   const decor = typeDecorSvg(type);
+  const decorCenterX = 13;
+  const leftDecorX = 24;
+  const rightDecorX = 92;
+  const gx = 16;
   const wineFill = isGood
-    ? '<path d="M34 16 C38 15 46 15 50 16 C52 24 51 32 48 37 C45 40 39 40 36 37 C33 32 32 24 34 16 Z" fill="#7a2332"/>' +
-      '<path d="M35 18 C38 17.5 46 17.5 49 18 C50 22 49 27 46.5 30 C44 32 40 32 37.5 30 C35 27 34 22 35 18 Z" fill="#5c1828" opacity="0.85"/>'
+    ? '<path d="M' + (34 + gx) + ' 16 C' + (38 + gx) + " 15 " + (46 + gx) + " 15 " + (50 + gx) + ' 16 C' + (52 + gx) + " 24 " + (51 + gx) + " 32 " + (48 + gx) + " 37 C" + (45 + gx) + " 40 " + (39 + gx) + " 40 " + (36 + gx) + " 37 C" + (33 + gx) + " 32 " + (32 + gx) + " 24 " + (34 + gx) + ' 16 Z" fill="#7a2332"/>' +
+      '<path d="M' + (35 + gx) + " 18 C" + (38 + gx) + " 17.5 " + (46 + gx) + " 17.5 " + (49 + gx) + " 18 C" + (50 + gx) + " 22 " + (49 + gx) + " 27 " + (46.5 + gx) + " 30 C" + (44 + gx) + " 32 " + (40 + gx) + " 32 " + (37.5 + gx) + " 30 C" + (35 + gx) + " 27 " + (34 + gx) + " 22 " + (35 + gx) + ' 18 Z" fill="#5c1828" opacity="0.85"/>'
     : "";
 
   return (
-    '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<g transform="translate(0 2)">' + decor + "</g>" +
-    '<g transform="translate(64 2) scale(-1 1)">' + decor + "</g>" +
-    '<path d="M34 13 C34 11 50 11 50 13 C52 21 51 29 48 34 C46 37 38 37 36 34 C33 29 32 21 34 13 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
+    '<svg viewBox="0 0 116 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<g transform="translate(' + (leftDecorX - decorCenterX) + ' 2)">' + decor + "</g>" +
+    '<g transform="translate(' + (rightDecorX + decorCenterX) + ' 2) scale(-1 1)">' + decor + "</g>" +
+    '<path d="M' + (34 + gx) + " 13 C" + (34 + gx) + " 11 " + (50 + gx) + " 11 " + (50 + gx) + " 13 C" + (52 + gx) + " 21 " + (51 + gx) + " 29 " + (48 + gx) + " 34 C" + (46 + gx) + " 37 " + (38 + gx) + " 37 " + (36 + gx) + " 34 C" + (33 + gx) + " 29 " + (32 + gx) + " 21 " + (34 + gx) + ' 13 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
     wineFill +
-    '<line x1="42" y1="37" x2="42" y2="52" stroke="#1a1a1a" stroke-width="1"/>' +
-    '<ellipse cx="42" cy="55" rx="6.5" ry="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>' +
+    '<line x1="' + (42 + gx) + '" y1="37" x2="' + (42 + gx) + '" y2="52" stroke="#1a1a1a" stroke-width="1"/>' +
+    '<ellipse cx="' + (42 + gx) + '" cy="55" rx="6.5" ry="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>' +
     "</svg>"
   );
 }
@@ -1016,8 +1020,14 @@ function setViewMode(mode) {
   const dayBtn = document.getElementById("viewDayBtn");
   const weekBtn = document.getElementById("viewWeekBtn");
   if (footer) footer.hidden = mode === "month";
-  if (dayBtn) dayBtn.classList.toggle("is-active", mode === "day");
-  if (weekBtn) weekBtn.classList.toggle("is-active", mode === "week");
+  if (dayBtn) {
+    dayBtn.classList.toggle("is-active", mode === "day");
+    dayBtn.setAttribute("aria-pressed", mode === "day" ? "true" : "false");
+  }
+  if (weekBtn) {
+    weekBtn.classList.toggle("is-active", mode === "week");
+    weekBtn.setAttribute("aria-pressed", mode === "week" ? "true" : "false");
+  }
 
   if (mode === "day") {
     dayClockHour = null;
@@ -1161,10 +1171,24 @@ function setWineMomentPanel(mode) {
   const weekPanel = document.getElementById("wmWeekPanel");
   const dayBtn = document.getElementById("wmViewDayBtn");
   const weekBtn = document.getElementById("wmViewWeekBtn");
-  if (dayPanel) dayPanel.hidden = mode !== "day";
-  if (weekPanel) weekPanel.hidden = mode !== "week";
-  if (dayBtn) dayBtn.classList.toggle("is-active", mode === "day");
-  if (weekBtn) weekBtn.classList.toggle("is-active", mode === "week");
+  if (dayPanel) {
+    const show = mode === "day";
+    dayPanel.hidden = !show;
+    dayPanel.classList.toggle("is-active", show);
+  }
+  if (weekPanel) {
+    const show = mode === "week";
+    weekPanel.hidden = !show;
+    weekPanel.classList.toggle("is-active", show);
+  }
+  if (dayBtn) {
+    dayBtn.classList.toggle("is-active", mode === "day");
+    dayBtn.setAttribute("aria-pressed", mode === "day" ? "true" : "false");
+  }
+  if (weekBtn) {
+    weekBtn.classList.toggle("is-active", mode === "week");
+    weekBtn.setAttribute("aria-pressed", mode === "week" ? "true" : "false");
+  }
 }
 
 function renderWineMomentView() {
@@ -2160,6 +2184,9 @@ function applyAppVersion() {
   document.title = "Biodynamische kalender " + label;
   const versionEl = document.querySelector(".app-version");
   if (versionEl) versionEl.textContent = label;
+  document.querySelectorAll(".app-version-inline").forEach(function (el) {
+    el.textContent = "v" + APP_VERSION;
+  });
 }
 
 function bootApp() {

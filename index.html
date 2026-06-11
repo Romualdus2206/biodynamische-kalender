@@ -2,17 +2,19 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Biodynamische kalender (v1.0.1)</title>
+  <title>Biodynamische kalender (v1.0.2)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Cache-Control" content="no-cache" />
-  <link rel="stylesheet" href="style.css?v=1.0.1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="style.css?v=1.0.2" />
 </head>
 <body class="view-month">
 
   <div class="page-header">
     <header class="topbar">
       <div class="topbar-left">
-        <h1>Biodynamische kalender <span class="app-version">(v1.0.1)</span></h1>
+        <h1>Biodynamische kalender <span class="app-version">(v1.0.2)</span></h1>
         <p class="subtitle">Tijdvakken, biodynamische dag en wijnadvies</p>
       </div>
       <button type="button" id="helpBtn" class="icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
@@ -141,8 +143,8 @@
   </main>
 
   <nav id="dialViewFooter" class="day-view-footer view-toggle" aria-label="Weergave wisselen" hidden>
-    <button type="button" id="viewDayBtn" class="view-toggle-btn is-active">DAG</button>
-    <button type="button" id="viewWeekBtn" class="view-toggle-btn">WEEK</button>
+    <button type="button" id="viewDayBtn" class="view-toggle-btn is-active" aria-pressed="true">DAG</button>
+    <button type="button" id="viewWeekBtn" class="view-toggle-btn" aria-pressed="false">WEEK</button>
   </nav>
 
   <div class="backdrop" id="dayModalBackdrop">
@@ -212,7 +214,7 @@
   <div class="backdrop backdrop-stack-2" id="wineMomentBackdrop">
     <div class="modal modal-wine-moment">
       <header class="modal-header modal-header-parchment">
-        <h2>Goed wijnmoment?</h2>
+        <h2>Goed wijnmoment? <span class="app-version-inline"></span></h2>
         <button type="button" class="icon-btn" id="wineMomentClose" aria-label="Sluiten">✕</button>
       </header>
       <div class="modal-body modal-body-parchment wine-moment-body">
@@ -226,7 +228,7 @@
           <button type="button" id="wmHelpBtn" class="vintage-icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
         </div>
 
-        <div id="wmDayPanel" class="wm-dial-panel">
+        <div id="wmDayPanel" class="wm-dial-panel is-active">
           <div class="dial-date-header">
             <button type="button" id="wmPrevDayBtn" class="day-nav-btn" aria-label="Vorige dag">‹</button>
             <div class="dial-date-center">
@@ -272,8 +274,8 @@
         </div>
 
         <nav class="day-view-footer view-toggle wm-view-toggle" aria-label="Weergave wisselen">
-          <button type="button" id="wmViewDayBtn" class="view-toggle-btn is-active">DAG</button>
-          <button type="button" id="wmViewWeekBtn" class="view-toggle-btn">WEEK</button>
+          <button type="button" id="wmViewDayBtn" class="view-toggle-btn is-active" aria-pressed="true">DAG</button>
+          <button type="button" id="wmViewWeekBtn" class="view-toggle-btn" aria-pressed="false">WEEK</button>
         </nav>
       </div>
     </div>
@@ -358,6 +360,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.0.1"></script>
+  <script src="app.js?v=1.0.2"></script>
 </body>
 </html>
