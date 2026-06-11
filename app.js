@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.9";
+const APP_VERSION = "1.0.10";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -1746,28 +1746,28 @@ function wineStyleLabel(style) {
 function dayTypeWineGuidance(type) {
   if (type === "root") {
     return {
-      profile: "Aromatiek lijkt ingetrokken; structuur, zuren en mineraliteit komen beter in balans.",
-      good: "Mineraal/strak: Chablis, Muscadet, strakke Grüner Veltliner, Sylvaner, Soave Classico, Fino, Extra Brut, minerale Riesling trocken. Rode wijn: Nebbiolo, oudere Bordeaux, serieuze Rioja.",
+      profile: "Minder goed wijnmoment voor alle wijnsoorten. Wijnen ruiken en smaken geslotener; fruit valt weg — strakker, zuurder, hoekiger. Rood dunner; wit strakker; rosé wateriger; mousserend scherper; port minder zoet/fruitig.",
+      good: "Mineraal/strak: Chablis, Muscadet, strakke Grüner Veltliner, Sylvaner, Soave Classico, Fino, Extra Brut, minerale Riesling trocken. Structuur: Nebbiolo, oudere Bordeaux, serieuze Rioja.",
       avoid: "Fruitgedreven en aromatisch: Sauvignon Blanc Marlborough, Verdejo, fris-aromatische Pinot Grigio, Gewürztraminer, Muscat, fruitige Provence-rosé, Beaujolais, fruitige Pinot Noir, fruit-forward Malbec."
     };
   }
   if (type === "leaf") {
     return {
-      profile: "Sappig, groen en vegetaal; soms wat nat gras.",
-      good: "Sauvignon Blanc Loire, Vinho Verde, aromatischer Grüner Veltliner, Albariño, Vermentino, Pinot Blanc. Rode wijn: lichte, frisse stijlen.",
+      profile: "Minder goed wijnmoment voor alle wijnsoorten. Groene, vegetale tonen versterkt; grassiger, bitterder of harder. Rood: hardere tannines; wit: groene tonen; rosé: minder fruit; mousserend: minder elegant; port: minder rond.",
+      good: "Sauvignon Blanc Loire, Vinho Verde, aromatischer Grüner Veltliner, Albariño, Vermentino, Pinot Blanc. Lichte, frisse rode wijnen.",
       avoid: "Houtgerijpte Chardonnay, rijke Rhône-blends, aromatische Gewürztraminer, zware tanninerijke rode wijnen."
     };
   }
   if (type === "flower") {
     return {
-      profile: "Aromatisch, elegant, met florale lift.",
+      profile: "Goed wijnmoment voor alle wijnsoorten. Aromatisch, elegant, met florale lift.",
       good: "Elegante Pinot Noir, Champagne Brut, Viognier, Gewürztraminer, Moscato d'Asti, feinherbe Riesling.",
       avoid: "Superstrakke wijnen (Chablis, Muscadet), zware tanninerijke wijnen, zeer houtgedreven wijnen."
     };
   }
   if (type === "fruit") {
     return {
-      profile: "Maximale fruitexpressie; rond, open en sappig. Ideale dag om te proeven.",
+      profile: "Goed wijnmoment voor alle wijnsoorten. Maximale fruitexpressie; rond, open en sappig. Ideale dag om te proeven.",
       good: "Provence-rosé, Beaujolais, fruitige Pinot Noir, fruit-forward Malbec, Zinfandel, aromatische witte wijnen.",
       avoid: "Superstrakke wijnen, zeer minerale wijnen, Fino/Manzanilla."
     };
