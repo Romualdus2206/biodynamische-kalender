@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Biodynamische kalender</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css?v=24" />
+  <link rel="stylesheet" href="style.css?v=26" />
 </head>
 <body class="view-month">
 
@@ -65,9 +65,9 @@
         <button type="button" id="dayHelpBtn" class="vintage-icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
       </div>
 
-      <div class="day-date-nav">
+      <div class="dial-date-header">
         <button type="button" id="prevDayBtn" class="day-nav-btn" aria-label="Vorige dag">‹</button>
-        <div class="day-date-label">
+        <div class="dial-date-center">
           <div id="dayWeekday" class="day-weekday">woensdag</div>
           <div id="dayDateShort" class="day-date-short">10 juni</div>
         </div>
@@ -77,7 +77,7 @@
       <div class="dial-wrap">
         <svg id="dayDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="24-uurs wijzerplaat"></svg>
         <div class="dial-center">
-          <p class="dial-question">goed wijnmoment</p>
+          <p class="dial-question">goed wijnmoment?</p>
           <p id="dialVerdict" class="dial-verdict">NEE</p>
           <div id="dialIcon" class="dial-icon"></div>
           <p id="dialType" class="dial-type">WORTEL</p>
@@ -97,9 +97,9 @@
         <button type="button" id="weekHelpBtn" class="vintage-icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
       </div>
 
-      <div class="week-range-nav">
+      <div class="dial-date-header dial-week-header">
         <button type="button" id="prevWeekBtn" class="day-nav-btn" aria-label="Vorige week">‹</button>
-        <div class="week-range-label">
+        <div class="dial-date-center">
           <div id="weekRangeText" class="week-range-text">8 JUN - 14 JUN</div>
           <div class="week-range-days">
             <span id="weekStartName">MAANDAG</span>
@@ -112,7 +112,7 @@
       <div class="dial-wrap" id="weekDialWrap">
         <svg id="weekDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="Weekwijzer 24 uur"></svg>
         <div class="dial-center">
-          <p class="dial-question">goed wijnmoment</p>
+          <p class="dial-question">goed wijnmoment?</p>
           <p id="weekDialVerdict" class="dial-verdict">NEE</p>
           <div id="weekDialIcon" class="dial-icon"></div>
           <p id="weekDialType" class="dial-type">BLAD</p>
@@ -154,7 +154,7 @@
         <div class="modal-view-choice">
           <p class="modal-view-hint">Kies hoe je deze dag wilt bekijken:</p>
           <div class="modal-view-actions">
-            <button type="button" id="openDialViewBtn" class="dial-view-btn">Goed wijnmoment</button>
+            <button type="button" id="openDialViewBtn" class="dial-view-btn">Goed wijnmoment?</button>
             <span class="modal-view-or">of lees hieronder het volledige advies</span>
           </div>
         </div>
@@ -182,7 +182,7 @@
         <ul>
           <li><strong>Siderische maan</strong> – Fagan/Bradley-ayanamsa (westers siderisch, dicht bij de Dornach-traditie).</li>
           <li><strong>Ongelijke sterrenbeelden</strong> – geen vaste blokken van 30°; grenzen afgeleid van astronomische (IAU) constellaties langs de ecliptica.</li>
-          <li><strong>Tijdvakken</strong> – wisselmomenten tot op het uur, in de gekozen tijdzone (standaard Amsterdam).</li>
+          <li><strong>Tijdvakken</strong> – wisselmomenten tot op het uur, in de tijdzone van je apparaat (aanpasbaar).</li>
         </ul>
 
         <p><strong>Dagtypes</strong></p>
@@ -211,7 +211,7 @@
   <div class="backdrop backdrop-stack-2" id="wineMomentBackdrop">
     <div class="modal modal-wine-moment">
       <header class="modal-header modal-header-parchment">
-        <h2>Goed wijnmoment</h2>
+        <h2>Goed wijnmoment?</h2>
         <button type="button" class="icon-btn" id="wineMomentClose" aria-label="Sluiten">✕</button>
       </header>
       <div class="modal-body modal-body-parchment wine-moment-body">
@@ -226,9 +226,9 @@
         </div>
 
         <div id="wmDayPanel" class="wm-dial-panel">
-          <div class="day-date-nav">
+          <div class="dial-date-header">
             <button type="button" id="wmPrevDayBtn" class="day-nav-btn" aria-label="Vorige dag">‹</button>
-            <div class="day-date-label">
+            <div class="dial-date-center">
               <div id="wmDayWeekday" class="day-weekday">dinsdag</div>
               <div id="wmDayDateShort" class="day-date-short">2 juni</div>
             </div>
@@ -237,7 +237,7 @@
           <div class="dial-wrap" id="wmDayDialWrap">
             <svg id="wmDayDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="24-uurs wijzerplaat"></svg>
             <div class="dial-center">
-              <p class="dial-question">goed wijnmoment</p>
+              <p class="dial-question">goed wijnmoment?</p>
               <p id="wmDayVerdict" class="dial-verdict">NEE</p>
               <div id="wmDayIcon" class="dial-icon"></div>
               <p id="wmDayType" class="dial-type">WORTEL</p>
@@ -247,9 +247,9 @@
         </div>
 
         <div id="wmWeekPanel" class="wm-dial-panel" hidden>
-          <div class="week-range-nav">
+          <div class="dial-date-header dial-week-header">
             <button type="button" id="wmPrevWeekBtn" class="day-nav-btn" aria-label="Vorige week">‹</button>
-            <div class="week-range-label">
+            <div class="dial-date-center">
               <div id="wmWeekRangeText" class="week-range-text">8 JUN - 14 JUN</div>
               <div class="week-range-days">
                 <span>MAANDAG</span>
@@ -261,7 +261,7 @@
           <div class="dial-wrap" id="wmWeekDialWrap">
             <svg id="wmWeekDial" class="day-dial" viewBox="0 0 320 320" role="img" aria-label="Weekwijzer"></svg>
             <div class="dial-center">
-              <p class="dial-question">goed wijnmoment</p>
+              <p class="dial-question">goed wijnmoment?</p>
               <p id="wmWeekVerdict" class="dial-verdict">NEE</p>
               <div id="wmWeekIcon" class="dial-icon"></div>
               <p id="wmWeekType" class="dial-type">BLAD</p>
@@ -295,39 +295,24 @@
   </div>
 
   <div class="backdrop backdrop-stack-3" id="agendaBackdrop">
-    <div class="modal modal-compact">
-      <header class="modal-header">
-        <h2>Agenda</h2>
-        <button type="button" class="icon-btn" id="agendaClose" aria-label="Sluiten">✕</button>
+    <div class="modal modal-agenda-cal">
+      <header class="modal-header modal-header-parchment">
+        <button type="button" class="icon-btn agenda-cal-close" id="agendaClose" aria-label="Sluiten">✕</button>
       </header>
-      <div class="modal-body">
-        <div class="agenda-tabs">
-          <button type="button" id="agendaDayTab" class="agenda-tab is-active">Dag</button>
-          <button type="button" id="agendaWeekTab" class="agenda-tab">Week</button>
-        </div>
-        <div id="agendaDayPanel" class="agenda-panel">
-          <div class="agenda-fields">
-            <label>Dag <input type="number" id="agendaDayInput" min="1" max="31" inputmode="numeric" /></label>
-            <label>Maand
-              <select id="agendaMonthInput">
-                <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mrt</option>
-                <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
-                <option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option>
-                <option value="9">Okt</option><option value="10">Nov</option><option value="11">Dec</option>
-              </select>
-            </label>
-            <label>Jaar <input type="number" id="agendaYearInput" min="2000" max="2100" inputmode="numeric" /></label>
+      <div class="modal-body modal-body-parchment agenda-cal-body">
+        <div class="agenda-cal-nav">
+          <button type="button" id="agendaPrevMonth" class="day-nav-btn" aria-label="Vorige maand">‹</button>
+          <div class="agenda-cal-title">
+            <div id="agendaCalMonth" class="agenda-cal-month">mei</div>
+            <div id="agendaCalYear" class="agenda-cal-year">2026</div>
           </div>
-          <button type="button" id="agendaApplyDayBtn" class="primary-btn">Kies dag</button>
+          <button type="button" id="agendaNextMonth" class="day-nav-btn" aria-label="Volgende maand">›</button>
         </div>
-        <div id="agendaWeekPanel" class="agenda-panel" hidden>
-          <div class="agenda-week-range" id="agendaWeekRangeText">8 JUN - 14 JUN</div>
-          <div class="agenda-week-nav">
-            <button type="button" id="agendaPrevWeekBtn" class="day-nav-btn">‹</button>
-            <button type="button" id="agendaNextWeekBtn" class="day-nav-btn">›</button>
-          </div>
-          <button type="button" id="agendaApplyWeekBtn" class="primary-btn">Kies week</button>
+        <div class="agenda-cal-weekdays">
+          <span>MA</span><span>DI</span><span>WO</span><span>DO</span><span>VR</span><span>ZA</span><span>ZO</span>
         </div>
+        <div id="agendaCalGrid" class="agenda-cal-grid"></div>
+        <p id="agendaCalHint" class="agenda-cal-hint">Tik een dag om te kiezen</p>
       </div>
     </div>
   </div>
@@ -372,6 +357,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>

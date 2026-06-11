@@ -150,6 +150,12 @@ body.view-month {
   font-size: 1.3rem;
 }
 
+.app-version {
+  font-size: 0.78em;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .subtitle {
   margin: 2px 0 0;
   font-size: 0.85rem;
@@ -327,11 +333,18 @@ body.view-month {
   height: 18px;
 }
 
-.day-date-nav {
-  display: flex;
+.day-date-nav,
+.dial-date-header {
+  display: grid;
+  grid-template-columns: 2rem 1fr 2rem;
   align-items: center;
-  gap: 22px;
-  margin-bottom: 18px;
+  width: min(78vw, 290px);
+  margin: 0 auto 10px;
+}
+
+.wm-dial-panel .dial-date-header,
+.wine-moment-body .dial-date-header {
+  width: min(72vw, 260px);
 }
 
 .day-nav-btn {
@@ -346,10 +359,25 @@ body.view-month {
   touch-action: manipulation;
 }
 
-.day-date-label {
-  min-width: 7.5rem;
+.day-date-label,
+.dial-date-center {
   text-align: center;
   line-height: 1.15;
+  min-width: 0;
+}
+
+.dial-week-header .week-range-text {
+  font-size: 1.1rem;
+}
+
+.dial-week-header .week-range-days {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+  padding: 0 8px;
 }
 
 .day-weekday {
@@ -368,7 +396,7 @@ body.view-month {
   height: min(78vw, 290px);
   flex: 1 1 auto;
   max-height: calc(100dvh - 250px);
-  margin: 8px auto 0;
+  margin: 0 auto;
   flex-shrink: 1;
   min-height: 250px;
   touch-action: none;
@@ -419,8 +447,8 @@ body.view-month {
 }
 
 .dial-icon {
-  width: 54px;
-  height: 60px;
+  width: 72px;
+  height: 58px;
   margin: 2px 0 0;
 }
 
@@ -449,39 +477,36 @@ body.view-month {
   background: transparent;
 }
 
-.day-view-footer.view-toggle {
+.day-view-footer.view-toggle,
+.wm-view-toggle.view-toggle {
   display: flex;
+  justify-content: center;
+  gap: 10px;
   margin: 0;
-  gap: 0;
 }
 
-.day-view-footer .view-toggle-btn {
+.day-view-footer .view-toggle-btn,
+.wm-view-toggle .view-toggle-btn {
   flex: 1;
-  border: 1px solid var(--dial-line);
-  background: var(--parchment);
+  max-width: 130px;
+  border: 2px solid var(--dial-line);
+  background: #f5efe4;
   color: var(--dial-line);
-  padding: 11px 16px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
+  border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
   touch-action: manipulation;
 }
 
-.day-view-footer .view-toggle-btn:first-child {
-  border-radius: 0;
-  border-right: none;
-}
-
-.day-view-footer .view-toggle-btn:last-child {
-  border-radius: 0;
-}
-
-.day-view-footer .view-toggle-btn.is-active {
-  background: var(--dial-toggle-active);
-  color: #fff;
-  border-color: var(--dial-toggle-active);
+.day-view-footer .view-toggle-btn.is-active,
+.wm-view-toggle .view-toggle-btn.is-active {
+  background: var(--dial-line);
+  color: #f5efe4;
+  border-color: var(--dial-line);
 }
 
 .month-view.calendar-wrapper {
@@ -781,9 +806,17 @@ body.view-month .month-view.calendar-wrapper {
   margin-bottom: 6px;
 }
 
+.wm-dial-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .wm-view-toggle {
   padding: 8px 0 0;
   margin-top: 4px;
+  width: 100%;
 }
 
 .wm-view-toggle.view-toggle {
@@ -810,63 +843,99 @@ body.view-month .month-view.calendar-wrapper {
   font-size: 0.85rem;
 }
 
-.agenda-tabs {
+.modal-agenda-cal {
+  max-width: 340px;
+  width: 92%;
+  background: var(--parchment, #f0e6d6);
+}
+
+.agenda-cal-body {
+  padding: 6px 14px 16px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.agenda-cal-nav {
   display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.agenda-tab {
-  flex: 1;
-  border: 1px solid var(--border-soft);
-  background: #fff;
-  padding: 8px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.agenda-tab.is-active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-.agenda-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.agenda-fields label {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 0.78rem;
-  flex: 1;
-  min-width: 5rem;
-}
-
-.agenda-fields input,
-.agenda-fields select {
-  padding: 6px;
-  border: 1px solid var(--border-soft);
-  border-radius: 4px;
-}
-
-.agenda-week-range {
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.agenda-week-nav {
-  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 10px;
+  gap: 28px;
+  margin-bottom: 12px;
+}
+
+.agenda-cal-title {
+  text-align: center;
+  min-width: 7rem;
+}
+
+.agenda-cal-month {
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.agenda-cal-year {
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+.agenda-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.agenda-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.agenda-cal-cell {
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  border-radius: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+  padding: 0;
+}
+
+.agenda-cal-cell.empty {
+  pointer-events: none;
+}
+
+.agenda-cal-cell.in-week {
+  background: rgba(110, 36, 53, 0.12);
+}
+
+.agenda-cal-cell.is-selected {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.agenda-cal-cell.in-week.is-selected {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.agenda-cal-hint {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.agenda-cal-close {
+  margin-left: auto;
 }
 
 .modal-actions {

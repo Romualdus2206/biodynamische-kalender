@@ -1,5 +1,7 @@
 // ===== Basisconfiguratie =====
 
+const APP_VERSION = "1.0.0";
+
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",
   "komt beter tot zijn recht",
@@ -20,17 +22,9 @@ const CONCLUSIE_KEYWORDS = [
 const DEFAULT_LOCATION = { name: "Rotterdam", lat: 51.9225, lon: 4.47917 };
 const DEFAULT_PREFS = { year: 2026, month: 5, place: "Rotterdam" };
 const DEFAULT_TIMEZONE = "Europe/Amsterdam";
-const TIMEZONE_OPTIONS = [
-  { id: "Europe/Amsterdam", label: "Amsterdam (CET/CEST)" },
-  { id: "Europe/Brussels", label: "Brussel" },
-  { id: "Europe/Berlin", label: "Berlijn" },
-  { id: "Europe/London", label: "Londen" },
-  { id: "Europe/Paris", label: "Parijs" },
-  { id: "Europe/Rome", label: "Rome" },
-  { id: "Europe/Madrid", label: "Madrid" },
-  { id: "Europe/Zurich", label: "Zürich" },
-  { id: "Europe/Vienna", label: "Wenen" },
-  { id: "UTC", label: "UTC" }
+const MONTH_NAMES_SHORT_LOWER = [
+  "jan", "feb", "mrt", "apr", "mei", "jun",
+  "jul", "aug", "sep", "okt", "nov", "dec"
 ];
 const FORECAST_MAX_DAYS = 14;
 const WEEKDAY_LABELS = ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"];
@@ -60,6 +54,8 @@ let dayClockHour = null;
 let userTimezone = DEFAULT_TIMEZONE;
 let dialPopupMode = "day";
 let agendaPickMonday;
+let agendaCalYear;
+let agendaCalMonth;
 let wineMomentOpen = false;
 
 const WEEKDAY_NAMES_LONG = [
@@ -77,7 +73,7 @@ const MONTH_NAMES_SHORT = [
   "JAN", "FEB", "MAA", "APR", "MEI", "JUN",
   "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"
 ];
-const DIAL_HOUR_LABELS = [0, 3, 6, 9, 12, 17, 18, 21];
+const DIAL_HOUR_LABELS = [0, 3, 6, 9, 12, 15, 18, 21];
 
 // ===== Opslag (veilig voor Safari) =====
 
@@ -369,11 +365,33 @@ function typeLabel(type) {
   return "Onbekend";
 }
 
+function deviceTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || DEFAULT_TIMEZONE;
+  } catch {
+    return DEFAULT_TIMEZONE;
+  }
+}
+
+function allTimezones() {
+  try {
+    if (typeof Intl !== "undefined" && Intl.supportedValuesOf) {
+      return Intl.supportedValuesOf("timeZone");
+    }
+  } catch {
+    /* fallback */
+  }
+  return [
+    "Europe/Amsterdam", "Europe/Brussels", "Europe/Berlin", "Europe/London",
+    "Europe/Paris", "Europe/Rome", "Europe/Madrid", "Europe/Zurich",
+    "Europe/Vienna", "America/New_York", "America/Los_Angeles",
+    "America/Chicago", "Asia/Tokyo", "Asia/Shanghai", "Australia/Sydney", "UTC"
+  ];
+}
+
 function loadTimezone() {
   const raw = storageGet("timezone");
-  if (raw && TIMEZONE_OPTIONS.some(function (o) { return o.id === raw; })) {
-    userTimezone = raw;
-  }
+  userTimezone = raw || deviceTimezone();
 }
 
 function saveTimezone() {
@@ -603,25 +621,25 @@ function ringSegmentPath(cx, cy, rOuter, rInner, startHour, endHour, gapDeg) {
 
 function typeDecorSvg(type) {
   const s = "#8a7358";
-  const o = "0.55";
+  const o = "0.6";
   if (type === "fruit") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="0.7">' +
-      '<circle cx="7" cy="24" r="2.2"/><circle cx="11" cy="22" r="2.2"/><circle cx="9" cy="27" r="2"/>' +
-      '<circle cx="13" cy="25" r="1.8"/><circle cx="11" cy="29" r="1.6"/><path d="M9 31 L9 36"/></g>';
+    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
+      '<circle cx="10" cy="18" r="3.5"/><circle cx="16" cy="15" r="3.5"/><circle cx="13" cy="23" r="3"/>' +
+      '<circle cx="19" cy="20" r="3"/><circle cx="16" cy="27" r="2.8"/><path d="M13 30 L13 38"/></g>';
   }
   if (type === "flower") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="0.7">' +
-      '<path d="M9 36 L9 22"/><path d="M9 24 Q5 20 7 17 Q9 20 9 24"/>' +
-      '<path d="M9 24 Q13 20 11 17 Q9 20 9 24"/><path d="M9 24 Q9 18 12 18 Q9 21 9 24"/></g>';
+    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
+      '<path d="M13 38 L13 14"/><path d="M13 18 Q7 12 9 8 Q13 12 13 18"/>' +
+      '<path d="M13 18 Q19 12 17 8 Q13 12 13 18"/><path d="M13 18 Q13 8 18 10 Q13 14 13 18"/></g>';
   }
   if (type === "leaf") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="0.7">' +
-      '<path d="M9 36 Q4 30 6 22 Q10 18 12 24 Q10 30 9 36"/><path d="M9 30 L12 24"/></g>';
+    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
+      '<path d="M13 38 Q5 30 7 18 Q12 10 17 20 Q14 30 13 38"/><path d="M13 28 L17 18"/></g>';
   }
   if (type === "root") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="0.7">' +
-      '<path d="M9 18 Q7 22 8 28 Q9 34 9 36"/><path d="M9 22 Q12 24 11 30"/>' +
-      '<path d="M9 26 Q6 28 7 32"/></g>';
+    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
+      '<path d="M13 12 Q10 18 11 26 Q12 34 13 38"/><path d="M13 20 Q18 22 17 30"/>' +
+      '<path d="M13 26 Q8 30 9 36"/></g>';
   }
   return "";
 }
@@ -629,18 +647,18 @@ function typeDecorSvg(type) {
 function redWineGlassSvg(isGood, type) {
   const decor = typeDecorSvg(type);
   const wineFill = isGood
-    ? '<path d="M16 14 C20 13 28 13 32 14 C34 20 33 28 30 33 C27 36 21 36 18 33 C15 28 14 20 16 14 Z" fill="#7a2332"/>' +
-      '<path d="M17 16 C20 15.5 28 15.5 31 16 C32 20 31 25 28.5 28 C26 30 22 30 19.5 28 C17 25 16 20 17 16 Z" fill="#5c1828" opacity="0.85"/>'
+    ? '<path d="M34 16 C38 15 46 15 50 16 C52 24 51 32 48 37 C45 40 39 40 36 37 C33 32 32 24 34 16 Z" fill="#7a2332"/>' +
+      '<path d="M35 18 C38 17.5 46 17.5 49 18 C50 22 49 27 46.5 30 C44 32 40 32 37.5 30 C35 27 34 22 35 18 Z" fill="#5c1828" opacity="0.85"/>'
     : "";
 
   return (
-    '<svg viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    decor +
-    '<g transform="translate(48 0) scale(-1 1)">' + decor + "</g>" +
-    '<path d="M16 11 C16 9 32 9 32 11 C34 19 33 27 30 32 C28 35 20 35 18 32 C15 27 14 19 16 11 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
+    '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<g transform="translate(0 2)">' + decor + "</g>" +
+    '<g transform="translate(64 2) scale(-1 1)">' + decor + "</g>" +
+    '<path d="M34 13 C34 11 50 11 50 13 C52 21 51 29 48 34 C46 37 38 37 36 34 C33 29 32 21 34 13 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
     wineFill +
-    '<line x1="24" y1="35" x2="24" y2="52" stroke="#1a1a1a" stroke-width="1"/>' +
-    '<ellipse cx="24" cy="55" rx="6.5" ry="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>' +
+    '<line x1="42" y1="37" x2="42" y2="52" stroke="#1a1a1a" stroke-width="1"/>' +
+    '<ellipse cx="42" cy="55" rx="6.5" ry="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>' +
     "</svg>"
   );
 }
@@ -689,7 +707,8 @@ function formatDialDateTime(day, month, hour) {
   const total = ((hour % 24) + 24) % 24;
   const h = Math.floor(total);
   const m = Math.round((total - h) * 60) % 60;
-  return day + "-" + (month + 1) + " " + h + ":" + m;
+  const monthLabel = MONTH_NAMES_SHORT_LOWER[month] || "???";
+  return day + " " + monthLabel + " " + h + ":" + String(m).padStart(2, "0");
 }
 
 const WEEK_DAY_SPAN = 360 / 7;
@@ -808,7 +827,14 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
 
   const active = slotAtHour(slots, activeHour).slot;
   const activeEnd = active.end >= 24 ? 24 : active.end;
-  svg += '<path d="' + ringSegmentPath(cx, cy, rOuter + 1, rInner - 1, active.start, activeEnd, 0.3) + '" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.75"/>';
+  const activeGood = isGoodWineType(active.type);
+  const selStroke = activeGood ? "#f5efe4" : "#1a1a1a";
+  svg += '<path d="' + ringSegmentPath(cx, cy, rOuter + 2, rInner - 2, active.start, activeEnd, 0.2) + '" fill="none" stroke="' + selStroke + '" stroke-width="3" opacity="0.95"/>';
+
+  const pinAngle = hourToDialAngle(activeHour);
+  const tickIn = polarToXY(cx, cy, rInner - 3, pinAngle);
+  const tickOut = polarToXY(cx, cy, rOuter + 3, pinAngle);
+  svg += '<line x1="' + tickIn.x + '" y1="' + tickIn.y + '" x2="' + tickOut.x + '" y2="' + tickOut.y + '" stroke="' + selStroke + '" stroke-width="2.5" stroke-linecap="round"/>';
 
   for (let hour = 0; hour < 24; hour++) {
     const a = hourToDialAngle(hour);
@@ -824,10 +850,9 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
     svg += '<text x="' + pos.x + '" y="' + (pos.y + 3) + '" text-anchor="middle" font-size="9" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
   });
 
-  const pinAngle = hourToDialAngle(activeHour);
   const pin = polarToXY(cx, cy, rPin, pinAngle);
-  svg += dialPinMarkup(pin.x, pin.y, pinAngle);
-  svg += selectionDotMarkup(pin.x, pin.y);
+  svg += dialPinMarkup(pin.x, pin.y, pinAngle, activeGood);
+  svg += selectionDotMarkup(pin.x, pin.y, activeGood);
   return svg;
 }
 
@@ -874,30 +899,41 @@ function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
 
   const selDay = weekDayDate(selectedDayIdx);
   const selSlots = buildSlots(selDay.year, selDay.month, selDay.day);
+  const selSlot = selSlots[selectedSlotIdx] || selSlots[0];
   const selAngles = slotAnglesInWeekDay(selectedDayIdx, selSlots, selectedSlotIdx);
   const pinAngle = hourToWeekAngle(selectedDayIdx, displayHour);
-  svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter + 1, rInner - 1, selAngles.start, selAngles.end, 0.15) + '" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.8"/>';
+  const activeGood = isGoodWineType(selSlot.type);
+  const selStroke = activeGood ? "#f5efe4" : "#1a1a1a";
+  svg += '<path d="' + angleRingSegmentPath(cx, cy, rOuter + 2, rInner - 2, selAngles.start, selAngles.end, 0.1) + '" fill="none" stroke="' + selStroke + '" stroke-width="3" opacity="0.95"/>';
+
+  const tickIn = polarToXY(cx, cy, rInner - 3, pinAngle);
+  const tickOut = polarToXY(cx, cy, rOuter + 3, pinAngle);
+  svg += '<line x1="' + tickIn.x + '" y1="' + tickIn.y + '" x2="' + tickOut.x + '" y2="' + tickOut.y + '" stroke="' + selStroke + '" stroke-width="2.5" stroke-linecap="round"/>';
 
   const pin = polarToXY(cx, cy, rPin, pinAngle);
-  svg += dialPinMarkup(pin.x, pin.y, pinAngle);
-  svg += selectionDotMarkup(pin.x, pin.y);
+  svg += dialPinMarkup(pin.x, pin.y, pinAngle, activeGood);
+  svg += selectionDotMarkup(pin.x, pin.y, activeGood);
 
   return svg;
 }
 
-function dialPinMarkup(x, y, angleDeg) {
+function dialPinMarkup(x, y, angleDeg, onDark) {
+  const fill = onDark ? "#f5efe4" : "#1a1a1a";
+  const hole = onDark ? "#6e2435" : "#f0e6d6";
   return (
     '<g transform="translate(' + x + " " + y + ") rotate(" + (angleDeg + 90) + ')">' +
-    '<path d="M0,-9 C3.5,-4.5 3.5,2.5 0,8.5 C-3.5,2.5 -3.5,-4.5 0,-9 Z" fill="#1a1a1a"/>' +
-    '<circle cx="0" cy="1" r="2.8" fill="#f0e6d6" stroke="#1a1a1a" stroke-width="0.6"/>' +
+    '<path d="M0,-11 C4,-5 4,3 0,10 C-4,3 -4,-5 0,-11 Z" fill="' + fill + '" stroke="#1a1a1a" stroke-width="0.5"/>' +
+    '<circle cx="0" cy="1" r="3.2" fill="' + hole + '" stroke="#1a1a1a" stroke-width="0.6"/>' +
     "</g>"
   );
 }
 
-function selectionDotMarkup(x, y) {
+function selectionDotMarkup(x, y, onDark) {
+  const stroke = onDark ? "#f5efe4" : "#1a1a1a";
+  const fill = onDark ? "#f5efe4" : "#1a1a1a";
   return (
-    '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="none" stroke="#1a1a1a" stroke-width="0.7" opacity="0.5"/>' +
-    '<circle cx="' + x + '" cy="' + y + '" r="1.5" fill="#1a1a1a"/>'
+    '<circle cx="' + x + '" cy="' + y + '" r="5" fill="none" stroke="' + stroke + '" stroke-width="1.2" opacity="0.85"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="2" fill="' + fill + '"/>'
   );
 }
 
@@ -1158,8 +1194,11 @@ function renderWeekDialView() {
 function populateTimezoneSelect() {
   const sel = document.getElementById("timezoneSelect");
   if (!sel) return;
-  sel.innerHTML = TIMEZONE_OPTIONS.map(function (o) {
-    return '<option value="' + o.id + '"' + (o.id === userTimezone ? " selected" : "") + ">" + o.label + "</option>";
+  const zones = allTimezones();
+  const device = deviceTimezone();
+  sel.innerHTML = zones.map(function (z) {
+    const label = z === device ? z + " (apparaat)" : z;
+    return '<option value="' + z + '"' + (z === userTimezone ? " selected" : "") + ">" + label + "</option>";
   }).join("");
 }
 
@@ -1168,65 +1207,110 @@ function openTimezoneModal() {
   openBackdrop("timezoneBackdrop");
 }
 
-function openAgendaModal() {
-  agendaPickMonday = weekMonday ? new Date(weekMonday) : mondayOfWeek(selectedYear, selectedMonth, selectedDay);
-  document.getElementById("agendaDayInput").value = String(selectedDay);
-  document.getElementById("agendaMonthInput").value = String(selectedMonth);
-  document.getElementById("agendaYearInput").value = String(selectedYear);
-  document.getElementById("agendaWeekRangeText").textContent = formatWeekRangeLabel(agendaPickMonday);
-  setAgendaTab("day");
-  openBackdrop("agendaBackdrop");
+function isSameWeekMonday(y, m, d, monday) {
+  const cellMonday = mondayOfWeek(y, m, d);
+  return cellMonday.getTime() === monday.getTime();
 }
 
-function setAgendaTab(tab) {
-  const dayTab = document.getElementById("agendaDayTab");
-  const weekTab = document.getElementById("agendaWeekTab");
-  const dayPanel = document.getElementById("agendaDayPanel");
-  const weekPanel = document.getElementById("agendaWeekPanel");
-  const isDay = tab === "day";
-  if (dayTab) dayTab.classList.toggle("is-active", isDay);
-  if (weekTab) weekTab.classList.toggle("is-active", !isDay);
-  if (dayPanel) dayPanel.hidden = !isDay;
-  if (weekPanel) weekPanel.hidden = isDay;
+function getAgendaMode() {
+  if (wineMomentOpen) return dialPopupMode;
+  if (viewMode === "week") return "week";
+  return "day";
 }
 
-function applyAgendaDay() {
-  const d = parseInt(document.getElementById("agendaDayInput").value, 10);
-  const m = parseInt(document.getElementById("agendaMonthInput").value, 10);
-  const y = parseInt(document.getElementById("agendaYearInput").value, 10);
-  if (Number.isNaN(d) || Number.isNaN(m) || Number.isNaN(y)) return;
+function renderAgendaCalendar() {
+  const grid = document.getElementById("agendaCalGrid");
+  const monthEl = document.getElementById("agendaCalMonth");
+  const yearEl = document.getElementById("agendaCalYear");
+  const hintEl = document.getElementById("agendaCalHint");
+  if (!grid) return;
+
+  const agendaMode = getAgendaMode();
+  monthEl.textContent = MONTH_NAMES_LONG[agendaCalMonth];
+  yearEl.textContent = String(agendaCalYear);
+
+  const pickMonday = agendaMode === "week"
+    ? (weekMonday ? new Date(weekMonday) : mondayOfWeek(selectedYear, selectedMonth, selectedDay))
+    : mondayOfWeek(selectedYear, selectedMonth, selectedDay);
+
+  if (hintEl) {
+    hintEl.textContent = agendaMode === "week"
+      ? "Tik een dag om die week te kiezen"
+      : "Tik een dag om te kiezen";
+  }
+
+  const daysInMonth = new Date(agendaCalYear, agendaCalMonth + 1, 0).getDate();
+  const startOffset = (new Date(agendaCalYear, agendaCalMonth, 1).getDay() + 6) % 7;
+  grid.innerHTML = "";
+
+  for (let i = 0; i < startOffset; i++) {
+    const empty = document.createElement("span");
+    empty.className = "agenda-cal-cell empty";
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "agenda-cal-cell";
+    btn.textContent = String(d);
+
+    const isSelected = d === selectedDay && agendaCalMonth === selectedMonth && agendaCalYear === selectedYear;
+    const inWeek = agendaMode === "week" && isSameWeekMonday(agendaCalYear, agendaCalMonth, d, pickMonday);
+
+    if (isSelected) btn.classList.add("is-selected");
+    if (inWeek) btn.classList.add("in-week");
+
+    btn.addEventListener("click", function () {
+      pickAgendaDate(agendaCalYear, agendaCalMonth, d);
+    });
+    grid.appendChild(btn);
+  }
+}
+
+function pickAgendaDate(y, m, d) {
   setSelectedDate(y, m, d);
   dayClockHour = null;
   weekSlotIndex = null;
   weekDisplayHour = null;
   syncWeekFromSelectedDate();
+
+  const agendaMode = getAgendaMode();
+  if (agendaMode === "week") {
+    weekDayIndex = (new Date(y, m, d).getDay() + 6) % 7;
+  }
+
   closeBackdrop("agendaBackdrop");
+
   if (wineMomentOpen) {
-    setWineMomentPanel("day");
+    setWineMomentPanel(agendaMode);
     renderWineMomentView();
+  } else if (agendaMode === "week") {
+    setViewMode("week");
   } else if (viewMode === "day") {
     renderDayView();
-  } else if (viewMode === "week") {
-    renderWeekDialView();
   }
   scheduleRender();
 }
 
-function applyAgendaWeek() {
-  weekMonday = new Date(agendaPickMonday);
-  weekDayIndex = 0;
-  weekSlotIndex = null;
-  weekDisplayHour = null;
-  const d = weekDayDate(0);
-  setSelectedDate(d.year, d.month, d.day);
-  closeBackdrop("agendaBackdrop");
-  if (wineMomentOpen) {
-    setWineMomentPanel("week");
-    renderWineMomentView();
-  } else {
-    setViewMode("week");
+function openAgendaModal() {
+  agendaCalYear = selectedYear;
+  agendaCalMonth = selectedMonth;
+  agendaPickMonday = weekMonday ? new Date(weekMonday) : mondayOfWeek(selectedYear, selectedMonth, selectedDay);
+  renderAgendaCalendar();
+  openBackdrop("agendaBackdrop");
+}
+
+function navigateAgendaMonth(delta) {
+  agendaCalMonth += delta;
+  if (agendaCalMonth < 0) {
+    agendaCalMonth = 11;
+    agendaCalYear -= 1;
+  } else if (agendaCalMonth > 11) {
+    agendaCalMonth = 0;
+    agendaCalYear += 1;
   }
-  scheduleRender();
+  renderAgendaCalendar();
 }
 
 function handleDayDialPointer(e, wrap) {
@@ -1958,30 +2042,12 @@ function initEventListeners() {
       closeBackdrop("agendaBackdrop");
       return;
     }
-    if (clickOnId(target, "agendaDayTab")) {
-      setAgendaTab("day");
+    if (clickOnId(target, "agendaPrevMonth")) {
+      navigateAgendaMonth(-1);
       return;
     }
-    if (clickOnId(target, "agendaWeekTab")) {
-      setAgendaTab("week");
-      return;
-    }
-    if (clickOnId(target, "agendaApplyDayBtn")) {
-      applyAgendaDay();
-      return;
-    }
-    if (clickOnId(target, "agendaApplyWeekBtn")) {
-      applyAgendaWeek();
-      return;
-    }
-    if (clickOnId(target, "agendaPrevWeekBtn")) {
-      agendaPickMonday.setDate(agendaPickMonday.getDate() - 7);
-      document.getElementById("agendaWeekRangeText").textContent = formatWeekRangeLabel(agendaPickMonday);
-      return;
-    }
-    if (clickOnId(target, "agendaNextWeekBtn")) {
-      agendaPickMonday.setDate(agendaPickMonday.getDate() + 7);
-      document.getElementById("agendaWeekRangeText").textContent = formatWeekRangeLabel(agendaPickMonday);
+    if (clickOnId(target, "agendaNextMonth")) {
+      navigateAgendaMonth(1);
       return;
     }
     if (clickOnId(target, "weekMonthBtn")) {
@@ -2089,7 +2155,17 @@ function initEventListeners() {
   });
 }
 
+function applyAppVersion() {
+  const label = "(v" + APP_VERSION + ")";
+  document.title = "Biodynamische kalender " + label;
+  const h1 = document.querySelector(".topbar h1");
+  if (h1) {
+    h1.innerHTML = 'Biodynamische kalender <span class="app-version">' + label + "</span>";
+  }
+}
+
 function bootApp() {
+  applyAppVersion();
   loadWines();
   loadLocation();
   loadTimezone();
