@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.7";
+const APP_VERSION = "1.0.8";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -660,11 +660,14 @@ function typeDecorSvg(type) {
   }
   if (type === "root") {
     return '<g opacity="0.95">' +
-      '<path d="M7 11 Q9 6 11 9 Q13 5 15 9 Q17 6 19 11 Q16 9 13 10 Q10 9 7 11" fill="' + fillSoft + '" opacity="0.65" stroke="' + stroke + '" stroke-width="0.75"/>' +
-      '<path d="M10 10 Q13 4 16 10 M12 10 Q13 7 14 10" stroke="' + stroke + '" stroke-width="0.8" fill="none" stroke-linecap="round"/>' +
-      '<path d="M13 12 L9.5 19 Q8.5 26 9.5 32 Q10.5 37 13 38.5 Q15.5 37 16.5 32 Q17.5 26 16.5 19 Z" fill="' + fill + '" opacity="0.55" stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"/>' +
-      '<path d="M13 14 L13 36" stroke="' + stroke + '" stroke-width="0.7" fill="none" opacity="0.5"/>' +
-      '<path d="M11 22 Q13 24 15 22 M10.5 28 Q13 30 15.5 28" stroke="' + stroke + '" stroke-width="0.65" fill="none" stroke-linecap="round" opacity="0.75"/>' +
+      '<line x1="4" y1="14" x2="22" y2="14" stroke="' + stroke + '" stroke-width="0.9" stroke-linecap="round"/>' +
+      '<path d="M13 14 L13 5" stroke="' + stroke + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 8 Q11 10 10 12 M13 8 Q15 10 16 12" stroke="' + stroke + '" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.85"/>' +
+      '<path d="M13 14 Q12.5 20 13 27 Q13 33 13 38" stroke="' + stroke + '" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 17 Q8 21 6 27 Q4.5 32 6.5 37" stroke="' + stroke + '" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 17 Q18 21 20 27 Q21.5 32 19.5 37" stroke="' + stroke + '" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 21 Q9 25 8 31 M13 21 Q17 25 18 31" stroke="' + stroke + '" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.85"/>' +
+      '<path d="M13 25 Q10 29 9.5 35 M13 25 Q16 29 16.5 35" stroke="' + stroke + '" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.8"/>' +
       "</g>";
   }
   return "";
@@ -1716,7 +1719,7 @@ function wineAdviceLong(type, weather) {
   if (type === "fruit") advice += "Vruchtendag – fruitexpressie; ideaal proefmoment voor rode wijn. ";
   if (type === "flower") advice += "Bloemdag – aromatiek en elegantie komen mooier naar voren. ";
   if (type === "leaf") advice += "Bladdag – bladgroei en sappigheid; rode wijn kan vlakker overkomen. ";
-  if (type === "root") advice += "Worteldag – structuur en mineraliteit; tannine kan sterker aanwezig zijn. ";
+  if (type === "root") advice += "Worteldag – ondergronds wortelstelsel; structuur en mineraliteit kunnen sterker aanwezig zijn. ";
 
   if (!hasWeatherData(weather)) {
     return advice.trim();
