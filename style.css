@@ -833,17 +833,12 @@ body.view-month .month-view.calendar-wrapper {
 }
 
 .wine-moment-body .dial-wrap {
-  width: min(64vw, 230px);
-  height: min(64vw, 230px);
+  width: min(72vw, 268px);
+  height: min(72vw, 268px);
   min-height: 0;
   max-height: none;
   margin-top: 0;
   flex-shrink: 0;
-}
-
-.wine-moment-body #wmDayPanel .dial-wrap {
-  width: min(72vw, 268px);
-  height: min(72vw, 268px);
 }
 
 .wine-moment-body .day-view-toolbar {

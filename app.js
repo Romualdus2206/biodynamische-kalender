@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.5";
+const APP_VERSION = "1.0.6";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -877,6 +877,28 @@ function slotAnglesInWeekDay(dayIndex, slots, slotIndex) {
   };
 }
 
+const DIAL_RING_INNER = 108;
+const DIAL_RING_OUTER = 132;
+const DIAL_LABEL_RADIUS = 155;
+
+function dialLabelRotation(angleDeg) {
+  let rotate = angleDeg + 90;
+  const norm = ((angleDeg % 360) + 360) % 360;
+  if (norm >= 90 && norm < 270) rotate += 180;
+  return rotate;
+}
+
+function dialLabelMarkup(cx, cy, radius, angleDeg, label, weight) {
+  const pos = polarToXY(cx, cy, radius, angleDeg);
+  const rotate = dialLabelRotation(angleDeg);
+  return (
+    '<text x="' + pos.x + '" y="' + pos.y +
+    '" transform="rotate(' + rotate + " " + pos.x + " " + pos.y + ')"' +
+    ' text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="' + (weight || 400) + '"' +
+    ' fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>"
+  );
+}
+
 function updateDialCenter(verdictEl, iconEl, typeEl, timeEl, slot, displayHour, day, month) {
   const isGood = isGoodWineType(slot.type);
   if (verdictEl) {
@@ -916,9 +938,8 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
   }
 
   DIAL_HOUR_LABELS.forEach(function (hour) {
-    const pos = polarToXY(cx, cy, rLabel, hourToDialAngle(hour));
     const label = hour === 0 ? "0:00" : String(hour) + ":00";
-    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3.5) + '" text-anchor="middle" font-size="10" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+    svg += dialLabelMarkup(cx, cy, rLabel, hourToDialAngle(hour), label, 400);
   });
 
   const pin = polarToXY(cx, cy, rPin, pinAngle);
@@ -930,15 +951,13 @@ function renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLa
 function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
   const cx = 160;
   const cy = 160;
-  const rOuter = 143;
-  const rInner = 118;
-  const rLabel = 158;
+  const rOuter = DIAL_RING_OUTER;
+  const rInner = DIAL_RING_INNER;
+  const rLabel = DIAL_LABEL_RADIUS;
   const rPin = (rOuter + rInner) / 2;
   const tan = "#c1a98f";
   const good = "#6e2435";
   let svg = "";
-
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rOuter + 7) + '" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
 
   for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
     const day = weekDayDate(dayIdx);
@@ -959,9 +978,8 @@ function renderWeekDialSvg(selectedDayIdx, selectedSlotIdx, displayHour) {
   }
 
   WEEKDAY_LABELS_DIAL.forEach(function (label, i) {
-    const pos = polarToXY(cx, cy, rLabel, weekDayAngle(i));
-    const weight = i === selectedDayIdx ? "700" : "400";
-    svg += '<text x="' + pos.x + '" y="' + (pos.y + 3.5) + '" text-anchor="middle" font-size="10" font-weight="' + weight + '" fill="#1a1a1a" font-family="Georgia, serif">' + label + "</text>";
+    const weight = i === selectedDayIdx ? 700 : 400;
+    svg += dialLabelMarkup(cx, cy, rLabel, weekDayAngle(i), label, weight);
   });
 
   const selDay = weekDayDate(selectedDayIdx);
@@ -1007,15 +1025,14 @@ function selectionDotMarkup(x, y, onDark) {
 function renderDayDialSvg(slots, activeHour) {
   const cx = 160;
   const cy = 160;
-  const rOuter = 143;
-  const rInner = 118;
-  const rLabel = 158;
+  const rOuter = DIAL_RING_OUTER;
+  const rInner = DIAL_RING_INNER;
+  const rLabel = DIAL_LABEL_RADIUS;
   const rPin = (rOuter + rInner) / 2;
   const tan = "#c1a98f";
   const good = "#6e2435";
   let svg = "";
 
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rOuter + 7) + '" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>';
   svg = renderInnerDialRing(svg, slots, activeHour, cx, cy, rOuter, rInner, rLabel, rPin, tan, good);
   return svg;
 }
