@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.8";
+const APP_VERSION = "1.0.9";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -17,6 +17,8 @@ const CONCLUSIE_KEYWORDS = [
   "is ideaal",
   "is prettig",
   "is minder geschikt",
+  "minder geschikt",
+  "geschikt",
   "kan vlak zijn",
   "kan strenger smaken"
 ];
@@ -103,9 +105,9 @@ function loadWines() {
   if (!raw) {
     wines = [
       { name: "Pommard 2018", grape: "Pinot Noir", region: "Bourgogne", style: "tanninerijk" },
-      { name: "Sancerre 2022", grape: "Sauvignon Blanc", region: "Loire", style: "aromatisch" },
-      { name: "Provence Rosé 2023", grape: "Grenache", region: "Provence", style: "fris" },
-      { name: "Chablis 2021", grape: "Chardonnay", region: "Bourgogne", style: "elegant" }
+      { name: "Sancerre 2022", grape: "Sauvignon Blanc", region: "Loire", style: "sappig" },
+      { name: "Provence Rosé 2023", grape: "Grenache", region: "Provence", style: "fruitig" },
+      { name: "Chablis 2021", grape: "Chardonnay", region: "Bourgogne", style: "mineraal" }
     ];
     saveWines();
     return;
@@ -1713,18 +1715,70 @@ function weatherDetail(weather) {
 
 // ===== Advies genereren =====
 
-function wineAdviceLong(type, weather) {
-  let advice = "";
+const WINE_STYLE_LABELS = {
+  fruitig: "Fruitig",
+  aromatisch: "Aromatisch",
+  elegant: "Elegant",
+  fris: "Fris & licht",
+  sappig: "Sappig & groen",
+  mineraal: "Mineraal & strak",
+  tanninerijk: "Tanninerijk & krachtig"
+};
 
-  if (type === "fruit") advice += "Vruchtendag – fruitexpressie; ideaal proefmoment voor rode wijn. ";
-  if (type === "flower") advice += "Bloemdag – aromatiek en elegantie komen mooier naar voren. ";
-  if (type === "leaf") advice += "Bladdag – bladgroei en sappigheid; rode wijn kan vlakker overkomen. ";
-  if (type === "root") advice += "Worteldag – ondergronds wortelstelsel; structuur en mineraliteit kunnen sterker aanwezig zijn. ";
+const DAY_GOOD_STYLES = {
+  root: ["mineraal", "tanninerijk"],
+  leaf: ["fris", "sappig"],
+  flower: ["elegant", "aromatisch"],
+  fruit: ["fruitig", "aromatisch", "fris"]
+};
 
-  if (!hasWeatherData(weather)) {
-    return advice.trim();
+const DAY_AVOID_STYLES = {
+  root: ["fruitig", "aromatisch"],
+  leaf: ["tanninerijk", "elegant"],
+  flower: ["mineraal", "tanninerijk"],
+  fruit: ["mineraal"]
+};
+
+function wineStyleLabel(style) {
+  return WINE_STYLE_LABELS[style] || style;
+}
+
+function dayTypeWineGuidance(type) {
+  if (type === "root") {
+    return {
+      profile: "Aromatiek lijkt ingetrokken; structuur, zuren en mineraliteit komen beter in balans.",
+      good: "Mineraal/strak: Chablis, Muscadet, strakke Grüner Veltliner, Sylvaner, Soave Classico, Fino, Extra Brut, minerale Riesling trocken. Rode wijn: Nebbiolo, oudere Bordeaux, serieuze Rioja.",
+      avoid: "Fruitgedreven en aromatisch: Sauvignon Blanc Marlborough, Verdejo, fris-aromatische Pinot Grigio, Gewürztraminer, Muscat, fruitige Provence-rosé, Beaujolais, fruitige Pinot Noir, fruit-forward Malbec."
+    };
   }
+  if (type === "leaf") {
+    return {
+      profile: "Sappig, groen en vegetaal; soms wat nat gras.",
+      good: "Sauvignon Blanc Loire, Vinho Verde, aromatischer Grüner Veltliner, Albariño, Vermentino, Pinot Blanc. Rode wijn: lichte, frisse stijlen.",
+      avoid: "Houtgerijpte Chardonnay, rijke Rhône-blends, aromatische Gewürztraminer, zware tanninerijke rode wijnen."
+    };
+  }
+  if (type === "flower") {
+    return {
+      profile: "Aromatisch, elegant, met florale lift.",
+      good: "Elegante Pinot Noir, Champagne Brut, Viognier, Gewürztraminer, Moscato d'Asti, feinherbe Riesling.",
+      avoid: "Superstrakke wijnen (Chablis, Muscadet), zware tanninerijke wijnen, zeer houtgedreven wijnen."
+    };
+  }
+  if (type === "fruit") {
+    return {
+      profile: "Maximale fruitexpressie; rond, open en sappig. Ideale dag om te proeven.",
+      good: "Provence-rosé, Beaujolais, fruitige Pinot Noir, fruit-forward Malbec, Zinfandel, aromatische witte wijnen.",
+      avoid: "Superstrakke wijnen, zeer minerale wijnen, Fino/Manzanilla."
+    };
+  }
+  return { profile: "", good: "", avoid: "" };
+}
 
+function weatherAdviceText(type, weather) {
+  if (!hasWeatherData(weather)) return "";
+
+  let advice = "";
   const pressure = weather.pressure;
   const temp = weather.temp;
 
@@ -1732,15 +1786,41 @@ function wineAdviceLong(type, weather) {
   else if (pressure < 1005) advice += "Lage luchtdruk: wijn blijft vaker gesloten. ";
   else advice += "Gemiddelde luchtdruk: neutrale invloed. ";
 
-  if (temp > 22) advice += "Warm weer: rosé of frisse witte wijn past beter. ";
-  else if (temp < 10) advice += "Koud weer: vollere rode wijn sluit beter aan. ";
-  else advice += "Gemiddelde temperatuur: zowel wit als rood kan goed werken. ";
+  if (temp > 22) {
+    if (type === "fruit" || type === "leaf") advice += "Warm weer: lichte, frisse wijn sluit goed aan. ";
+    else if (type === "flower") advice += "Warm weer: elegante witte of lichte rode wijn kan prettig zijn. ";
+    else advice += "Warm weer: kies liever mineraal/strak dan fruitige rosé. ";
+  } else if (temp < 10) {
+    if (type === "root" || type === "flower") advice += "Koud weer: structuur en body komen goed tot hun recht. ";
+    else advice += "Koud weer: vollere wijn kan prettig zijn. ";
+  } else {
+    advice += "Gemiddelde temperatuur: neutrale invloed. ";
+  }
 
   if (isRainy(weather)) {
     advice += "Regenachtig weer: comfortwijnen kunnen extra prettig zijn. ";
   }
 
   return advice.trim();
+}
+
+function wineAdviceLong(type, weather) {
+  const g = dayTypeWineGuidance(type);
+  let advice = typeLabel(type) + ". " + g.profile + " Geschikt: " + g.good + " Minder geschikt: " + g.avoid + ".";
+  const weatherPart = weatherAdviceText(type, weather);
+  if (weatherPart) advice += " " + weatherPart;
+  return advice.trim();
+}
+
+function wineAdviceHtml(type, weather) {
+  const g = dayTypeWineGuidance(type);
+  let html =
+    "<p><strong>" + typeLabel(type) + ".</strong> " + g.profile + "</p>" +
+    "<p>✔ <strong>Geschikt:</strong> " + g.good + "</p>" +
+    "<p>✖ <strong>Minder geschikt:</strong> " + g.avoid + "</p>";
+  const weatherPart = weatherAdviceText(type, weather);
+  if (weatherPart) html += "<p>" + weatherPart + "</p>";
+  return html;
 }
 
 function extractConclusionSentence(text) {
@@ -1773,20 +1853,25 @@ function cleanConclusionSentence(sentence) {
 
 // ===== Wijnmatch =====
 
-function matchWines(type, weather) {
-  const temp = hasWeatherData(weather) ? weather.temp : null;
-
+function matchWines(type) {
+  const good = DAY_GOOD_STYLES[type] || [];
   return wines.filter(function (w) {
-    if (type === "fruit" && w.style === "aromatisch") return true;
-    if (type === "flower" && w.style === "elegant") return true;
-    if (type === "leaf" && w.style === "fris") return true;
-    if (type === "root" && w.style === "tanninerijk") return true;
-
-    if (temp != null && temp > 22 && w.style === "fris") return true;
-    if (temp != null && temp < 10 && w.style === "tanninerijk") return true;
-
-    return false;
+    return good.indexOf(w.style) >= 0;
   });
+}
+
+function avoidWines(type) {
+  const avoid = DAY_AVOID_STYLES[type] || [];
+  return wines.filter(function (w) {
+    return avoid.indexOf(w.style) >= 0;
+  });
+}
+
+function formatWineList(items) {
+  if (!items.length) return "";
+  return items.map(function (w) {
+    return "• " + w.name + " (" + wineStyleLabel(w.style) + ")";
+  }).join("<br>");
 }
 
 // ===== Modals =====
@@ -1819,7 +1904,7 @@ function renderInventoryList() {
     row.className = "inventory-item";
 
     const label = document.createElement("span");
-    label.textContent = `${w.name} – ${w.grape} (${w.region}) – ${w.style}`;
+    label.textContent = w.name + " – " + w.grape + " (" + w.region + ") – " + wineStyleLabel(w.style);
 
     const btn = document.createElement("button");
     btn.type = "button";
@@ -1892,10 +1977,12 @@ function renderCalendarDOM(year, month, weatherMap) {
       const range = formatSlotRange(slot);
       const adviceFull = wineAdviceLong(slot.type, weather);
       const conclusion = extractConclusionSentence(adviceFull);
-      const matched = matchWines(slot.type, weather);
-      const winesHtml = matched.length
-        ? matched.map(function (wi) { return "• " + wi.name + " (" + wi.style + ")"; }).join("<br>")
-        : "Geen specifieke flessen.";
+      const matched = matchWines(slot.type);
+      const avoided = avoidWines(slot.type);
+      let winesHtml = matched.length ? formatWineList(matched) : "Geen passende flessen in je voorraad.";
+      if (avoided.length) {
+        winesHtml += '<br><span class="slot-wines-avoid">Minder geschikt: ' + formatWineList(avoided) + "</span>";
+      }
 
       html +=
         '<div class="slot-block">' +
@@ -1987,26 +2074,27 @@ function openDayModal(day, month, year, slots, weather) {
     .join("<br>");
 
   adviceEl.innerHTML = slots
-    .map(s => {
+    .map(function (s) {
       const range = formatSlotRange(s);
-      const adv = wineAdviceLong(s.type, weather);
-      return `<strong>${range}</strong><br>${adv}`;
+      return "<strong>" + range + "</strong>" + wineAdviceHtml(s.type, weather);
     })
-    .join("<br><br>");
+    .join("<hr class=\"modal-slot-divider\">");
 
   winesEl.innerHTML = slots
-    .map(s => {
+    .map(function (s) {
       const range = formatSlotRange(s);
-      const matched = matchWines(s.type, weather);
-
-      if (!matched.length) {
-        return `<strong>${range}</strong><br>Geen specifieke flessen uit jouw voorraad.`;
+      const matched = matchWines(s.type);
+      const avoided = avoidWines(s.type);
+      let html = "<strong>" + range + "</strong><br>";
+      html += matched.length
+        ? "✔ " + formatWineList(matched)
+        : "Geen passende flessen in je voorraad.";
+      if (avoided.length) {
+        html += "<br>✖ Minder geschikt: " + formatWineList(avoided);
       }
-
-      const list = matched.map(w => `• ${w.name} – ${w.style}`).join("<br>");
-      return `<strong>${range}</strong><br>${list}`;
+      return html;
     })
-    .join("<br><br>");
+    .join("<hr class=\"modal-slot-divider\">");
 
   openBackdrop("dayModalBackdrop");
 }
@@ -2254,7 +2342,7 @@ function initEventListeners() {
       document.getElementById("wineNameInput").value = "";
       document.getElementById("wineGrapeInput").value = "";
       document.getElementById("wineRegionInput").value = "";
-      document.getElementById("wineStyleInput").value = "aromatisch";
+      document.getElementById("wineStyleInput").value = "fruitig";
       renderInventoryList();
       if (viewMode === "month") {
         renderCalendar(currentYear, currentMonth);

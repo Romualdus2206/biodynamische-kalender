@@ -2,19 +2,19 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Biodynamische kalender (v1.0.8)</title>
+  <title>Biodynamische kalender (v1.0.9)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=1.0.8" />
+  <link rel="stylesheet" href="style.css?v=1.0.9" />
 </head>
 <body class="view-month">
 
   <div class="page-header">
     <header class="topbar">
       <div class="topbar-left">
-        <h1>Biodynamische kalender <span class="app-version">(v1.0.8)</span></h1>
+        <h1>Biodynamische kalender <span class="app-version">(v1.0.9)</span></h1>
         <p class="subtitle">Tijdvakken, biodynamische dag en wijnadvies</p>
       </div>
       <button type="button" id="helpBtn" class="icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
@@ -188,14 +188,15 @@
           <li><strong>Tijdvakken</strong> – wisselmomenten tot op het uur, in de tijdzone van je apparaat (aanpasbaar).</li>
         </ul>
 
-        <p><strong>Dagtypes</strong></p>
-        <p>Elke dag hoort bij één van vier biodynamische dagtypes. In de wijngaard staat telkens een ander deel van de plant centraal:</p>
+        <p><strong>Dagtypes &amp; wijnstijl</strong></p>
+        <p>Elke dag hoort bij één van vier biodynamische dagtypes. Het dagtype bepaalt welke wijnstijlen beter of minder goed passen:</p>
         <ul>
-          <li><strong>Vruchtendag</strong> (vuur: Ram, Leeuw, Boogschutter) – fruitexpressie; ideale proefmomenten voor rode wijn.</li>
-          <li><strong>Bloemdag</strong> (lucht: Tweelingen, Weegschaal, Waterman) – aromatiek en elegantie komen mooier naar voren.</li>
-          <li><strong>Bladdag</strong> (water: Kreeft, Schorpioen, Vissen) – bladgroei en sappigheid; rode wijn kan vlakker overkomen.</li>
-          <li><strong>Worteldag</strong> (aarde: Stier, Maagd, Steenbok) – het ondergrondse wortelstelsel van de plant; structuur en mineraliteit kunnen sterker aanwezig zijn.</li>
+          <li><strong>Worteldag</strong> (aarde) – structuur en mineraliteit; geschikt: mineraal/strak, tanninerijk. Minder: fruitig en aromatisch.</li>
+          <li><strong>Bladdag</strong> (water) – sappig, groen, vegetaal; geschikt: fris, sappig. Minder: tanninerijk, zware elegante/houtgerijpte wijnen.</li>
+          <li><strong>Bloemdag</strong> (lucht) – aromatisch, elegant, florale lift; geschikt: elegant, aromatisch. Minder: mineraal/strak, tanninerijk.</li>
+          <li><strong>Vruchtendag</strong> (vuur) – maximale fruitexpressie; ideale proefdag. Geschikt: fruitig, aromatisch, fris. Minder: mineraal/strak.</li>
         </ul>
+        <p>De cirkel toont <strong>goed wijnmoment</strong> voor rode wijn op vrucht- en bloemdag. Op andere dagen kun je wél wijn drinken — kies dan de passende stijl uit het advies.</p>
 
         <p><strong>Verschil met de officiële Thun-kalender</strong></p>
         <p>De app benadert de Thun-kalender zo dicht mogelijk, maar is geen officiële kopie. Kleine afwijkingen zijn mogelijk door:</p>
@@ -347,10 +348,13 @@
           <label>
             Stijl
             <select id="wineStyleInput">
+              <option value="fruitig">Fruitig</option>
               <option value="aromatisch">Aromatisch</option>
               <option value="elegant">Elegant</option>
-              <option value="fris">Fris</option>
-              <option value="tanninerijk">Tanninerijk</option>
+              <option value="fris">Fris &amp; licht</option>
+              <option value="sappig">Sappig &amp; groen</option>
+              <option value="mineraal">Mineraal &amp; strak</option>
+              <option value="tanninerijk">Tanninerijk &amp; krachtig</option>
             </select>
           </label>
         </div>
@@ -361,6 +365,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.0.8"></script>
+  <script src="app.js?v=1.0.9"></script>
 </body>
 </html>
