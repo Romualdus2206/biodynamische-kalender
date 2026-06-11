@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.3";
 
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",
@@ -620,26 +620,49 @@ function ringSegmentPath(cx, cy, rOuter, rInner, startHour, endHour, gapDeg) {
 }
 
 function typeDecorSvg(type) {
-  const s = "#8a7358";
-  const o = "0.6";
+  const stroke = "#5c4a38";
+  const fill = "#8a7358";
+  const fillSoft = "#a89278";
   if (type === "fruit") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
-      '<circle cx="10" cy="18" r="3.5"/><circle cx="16" cy="15" r="3.5"/><circle cx="13" cy="23" r="3"/>' +
-      '<circle cx="19" cy="20" r="3"/><circle cx="16" cy="27" r="2.8"/><path d="M13 30 L13 38"/></g>';
+    return '<g opacity="0.95">' +
+      '<path d="M13 7 C12 9 11.5 11 12 13" stroke="' + stroke + '" fill="none" stroke-width="1" stroke-linecap="round"/>' +
+      '<path d="M13 13 Q16 10 18.5 11.5 Q15.5 13 13 13" fill="' + fillSoft + '" stroke="' + stroke + '" stroke-width="0.7"/>' +
+      '<circle cx="8.5" cy="19" r="4.2" fill="' + fill + '" opacity="0.45" stroke="' + stroke + '" stroke-width="0.9"/>' +
+      '<circle cx="13.5" cy="16.5" r="4.4" fill="' + fill + '" opacity="0.5" stroke="' + stroke + '" stroke-width="0.9"/>' +
+      '<circle cx="18" cy="19.5" r="4" fill="' + fill + '" opacity="0.45" stroke="' + stroke + '" stroke-width="0.9"/>' +
+      '<circle cx="10.5" cy="25" r="3.8" fill="' + fill + '" opacity="0.4" stroke="' + stroke + '" stroke-width="0.9"/>' +
+      '<circle cx="15.5" cy="26" r="3.7" fill="' + fill + '" opacity="0.4" stroke="' + stroke + '" stroke-width="0.9"/>' +
+      '<path d="M13 24 L13 36" stroke="' + stroke + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+      "</g>";
   }
   if (type === "flower") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
-      '<path d="M13 38 L13 14"/><path d="M13 18 Q7 12 9 8 Q13 12 13 18"/>' +
-      '<path d="M13 18 Q19 12 17 8 Q13 12 13 18"/><path d="M13 18 Q13 8 18 10 Q13 14 13 18"/></g>';
+    return '<g opacity="0.95">' +
+      '<path d="M13 36 L13 16" stroke="' + stroke + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="13" cy="12.5" rx="2.2" ry="3.2" fill="' + fillSoft + '" stroke="' + stroke + '" stroke-width="0.8"/>' +
+      '<ellipse cx="9" cy="15.5" rx="2.4" ry="3.4" fill="' + fill + '" opacity="0.5" stroke="' + stroke + '" stroke-width="0.8" transform="rotate(-35 9 15.5)"/>' +
+      '<ellipse cx="17" cy="15.5" rx="2.4" ry="3.4" fill="' + fill + '" opacity="0.5" stroke="' + stroke + '" stroke-width="0.8" transform="rotate(35 17 15.5)"/>' +
+      '<ellipse cx="10" cy="19.5" rx="2.3" ry="3.2" fill="' + fill + '" opacity="0.45" stroke="' + stroke + '" stroke-width="0.8" transform="rotate(-70 10 19.5)"/>' +
+      '<ellipse cx="16" cy="19.5" rx="2.3" ry="3.2" fill="' + fill + '" opacity="0.45" stroke="' + stroke + '" stroke-width="0.8" transform="rotate(70 16 19.5)"/>' +
+      '<circle cx="13" cy="16.5" r="2.2" fill="' + fillSoft + '" stroke="' + stroke + '" stroke-width="0.7"/>' +
+      '<path d="M11 30 Q8 28 9 25 Q11 27 13 28" fill="' + fillSoft + '" opacity="0.55" stroke="' + stroke + '" stroke-width="0.7"/>' +
+      '<path d="M15 30 Q18 28 17 25 Q15 27 13 28" fill="' + fillSoft + '" opacity="0.55" stroke="' + stroke + '" stroke-width="0.7"/>' +
+      "</g>";
   }
   if (type === "leaf") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
-      '<path d="M13 38 Q5 30 7 18 Q12 10 17 20 Q14 30 13 38"/><path d="M13 28 L17 18"/></g>';
+    return '<g opacity="0.95">' +
+      '<path d="M13 36 Q6 30 5.5 21 Q6 12 13 8 Q20 12 20.5 21 Q20 30 13 36 Z" fill="' + fill + '" opacity="0.35" stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"/>' +
+      '<path d="M13 34 Q13 24 13 10" stroke="' + stroke + '" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13 28 Q17 24 19 20 M13 22 Q9 19 7 16 M13 16 Q16 13 18 11" stroke="' + stroke + '" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.85"/>' +
+      '<path d="M13 36 L13 38" stroke="' + stroke + '" stroke-width="1" stroke-linecap="round"/>' +
+      "</g>";
   }
   if (type === "root") {
-    return '<g opacity="' + o + '" stroke="' + s + '" fill="none" stroke-width="1">' +
-      '<path d="M13 12 Q10 18 11 26 Q12 34 13 38"/><path d="M13 20 Q18 22 17 30"/>' +
-      '<path d="M13 26 Q8 30 9 36"/></g>';
+    return '<g opacity="0.95">' +
+      '<path d="M10 10 Q7 8 8 6 Q10 7 11 9 M16 10 Q19 8 18 6 Q16 7 15 9" fill="none" stroke="' + stroke + '" stroke-width="0.9" stroke-linecap="round"/>' +
+      '<path d="M13 12 Q9 14 8.5 20 Q8 28 10 34 Q11.5 37 13 38 Q14.5 37 16 34 Q18 28 17.5 20 Q17 14 13 12 Z" fill="' + fill + '" opacity="0.4" stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"/>' +
+      '<path d="M13 14 L13 36" stroke="' + stroke + '" stroke-width="0.8" fill="none" opacity="0.7"/>' +
+      '<path d="M13 22 Q16 24 17 28 M13 26 Q10 28 9 32" stroke="' + stroke + '" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.8"/>' +
+      "</g>";
   }
   return "";
 }
@@ -647,18 +670,30 @@ function typeDecorSvg(type) {
 function redWineGlassSvg(isGood, type) {
   const decor = typeDecorSvg(type);
   const decorCenterX = 13;
-  const leftDecorX = 24;
-  const rightDecorX = 92;
-  const gx = 16;
+  const decorCenterY = 22;
+  const leftDecorX = 26;
+  const rightDecorX = 94;
+  const decorScale = 1.45;
+  const gx = 18;
   const wineFill = isGood
     ? '<path d="M' + (34 + gx) + ' 16 C' + (38 + gx) + " 15 " + (46 + gx) + " 15 " + (50 + gx) + ' 16 C' + (52 + gx) + " 24 " + (51 + gx) + " 32 " + (48 + gx) + " 37 C" + (45 + gx) + " 40 " + (39 + gx) + " 40 " + (36 + gx) + " 37 C" + (33 + gx) + " 32 " + (32 + gx) + " 24 " + (34 + gx) + ' 16 Z" fill="#7a2332"/>' +
       '<path d="M' + (35 + gx) + " 18 C" + (38 + gx) + " 17.5 " + (46 + gx) + " 17.5 " + (49 + gx) + " 18 C" + (50 + gx) + " 22 " + (49 + gx) + " 27 " + (46.5 + gx) + " 30 C" + (44 + gx) + " 32 " + (40 + gx) + " 32 " + (37.5 + gx) + " 30 C" + (35 + gx) + " 27 " + (34 + gx) + " 22 " + (35 + gx) + ' 18 Z" fill="#5c1828" opacity="0.85"/>'
     : "";
 
+  function decorSideMarkup(flip) {
+    const anchorX = flip ? rightDecorX : leftDecorX;
+    const scaleX = flip ? -decorScale : decorScale;
+    return (
+      '<g transform="translate(' + anchorX + " " + decorCenterY + ") scale(" + scaleX + " " + decorScale + ") translate(" + -decorCenterX + " " + -decorCenterY + ')">' +
+      decor +
+      "</g>"
+    );
+  }
+
   return (
-    '<svg viewBox="0 0 116 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<g transform="translate(' + (leftDecorX - decorCenterX) + ' 2)">' + decor + "</g>" +
-    '<g transform="translate(' + (rightDecorX + decorCenterX) + ' 2) scale(-1 1)">' + decor + "</g>" +
+    '<svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    decorSideMarkup(false) +
+    decorSideMarkup(true) +
     '<path d="M' + (34 + gx) + " 13 C" + (34 + gx) + " 11 " + (50 + gx) + " 11 " + (50 + gx) + " 13 C" + (52 + gx) + " 21 " + (51 + gx) + " 29 " + (48 + gx) + " 34 C" + (46 + gx) + " 37 " + (38 + gx) + " 37 " + (36 + gx) + " 34 C" + (33 + gx) + " 29 " + (32 + gx) + " 21 " + (34 + gx) + ' 13 Z" fill="#faf6ee" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>' +
     wineFill +
     '<line x1="' + (42 + gx) + '" y1="37" x2="' + (42 + gx) + '" y2="52" stroke="#1a1a1a" stroke-width="1"/>' +
@@ -1420,6 +1455,11 @@ function stopDialRefresh() {
 }
 
 function initSelectedDate(year, month) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  if (selectedYear === year && selectedMonth === month) {
+    setSelectedDate(year, month, Math.min(selectedDay, daysInMonth));
+    return;
+  }
   const today = new Date();
   if (today.getFullYear() === year && today.getMonth() === month) {
     setSelectedDate(year, month, today.getDate());

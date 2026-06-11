@@ -345,6 +345,7 @@ body.view-month {
 .wm-dial-panel .dial-date-header,
 .wine-moment-body .dial-date-header {
   width: min(72vw, 260px);
+  margin: 16px auto 18px;
 }
 
 .day-nav-btn {
@@ -425,8 +426,9 @@ body.view-month {
 
 .dial-question {
   margin: 0 0 2px;
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   font-weight: 400;
+  line-height: 1.1;
 }
 
 .dial-verdict {
@@ -447,9 +449,9 @@ body.view-month {
 }
 
 .dial-icon {
-  width: min(78%, 150px);
+  width: min(88%, 168px);
   height: auto;
-  aspect-ratio: 116 / 70;
+  aspect-ratio: 120 / 72;
   margin: 2px 0 0;
 }
 
@@ -833,12 +835,17 @@ body.view-month .month-view.calendar-wrapper {
   height: min(64vw, 230px);
   min-height: 0;
   max-height: none;
-  margin-top: 4px;
+  margin-top: 0;
   flex-shrink: 0;
 }
 
+.wine-moment-body #wmDayPanel .dial-wrap {
+  width: min(72vw, 268px);
+  height: min(72vw, 268px);
+}
+
 .wine-moment-body .day-view-toolbar {
-  margin-bottom: 6px;
+  margin-bottom: 14px;
 }
 
 .wm-dial-panel {
@@ -858,8 +865,8 @@ body.view-month .month-view.calendar-wrapper {
 }
 
 .wm-view-toggle {
-  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-  margin-top: 4px;
+  padding: 18px 0 max(10px, env(safe-area-inset-bottom));
+  margin-top: 14px;
   width: 100%;
   flex-shrink: 0;
 }
