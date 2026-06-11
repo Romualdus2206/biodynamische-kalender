@@ -1,6 +1,8 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.4";
+const APP_VERSION = "1.0.5";
+const VERSION_RELOAD_PARAM = "_rv";
+const VERSION_CHECK_MAX_RELOADS = 2;
 
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",
@@ -2255,7 +2257,62 @@ function applyAppVersion() {
   });
 }
 
-function bootApp() {
+function parseVersionFromIndexHtml(html) {
+  const assetMatch = html.match(/(?:app\.js|style\.css)\?v=([\d.]+)/);
+  if (assetMatch) return assetMatch[1];
+  const titleMatch = html.match(/\(v([\d.]+)\)/);
+  return titleMatch ? titleMatch[1] : null;
+}
+
+function cleanVersionReloadParam() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has(VERSION_RELOAD_PARAM)) return;
+  url.searchParams.delete(VERSION_RELOAD_PARAM);
+  const next = url.pathname + url.search + url.hash;
+  history.replaceState(null, "", next || url.pathname);
+}
+
+async function checkAppVersionUpdate() {
+  const url = new URL(location.href);
+  if (url.searchParams.get(VERSION_RELOAD_PARAM) === APP_VERSION) {
+    sessionStorage.removeItem("cv-reloads");
+    cleanVersionReloadParam();
+    return false;
+  }
+
+  const reloads = parseInt(sessionStorage.getItem("cv-reloads") || "0", 10);
+  if (reloads >= VERSION_CHECK_MAX_RELOADS) return false;
+
+  try {
+    const res = await fetch("index.html?_cv=" + Date.now(), {
+      cache: "no-store",
+      credentials: "same-origin"
+    });
+    if (!res.ok) return false;
+
+    const remoteVersion = parseVersionFromIndexHtml(await res.text());
+    if (!remoteVersion || remoteVersion === APP_VERSION) return false;
+
+    sessionStorage.setItem("cv-reloads", String(reloads + 1));
+    url.searchParams.set(VERSION_RELOAD_PARAM, remoteVersion);
+    location.replace(url.toString());
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function startVersionWatch() {
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+      checkAppVersionUpdate();
+    }
+  });
+}
+
+async function bootApp() {
+  if (await checkAppVersionUpdate()) return;
+
   applyAppVersion();
   loadWines();
   loadLocation();
@@ -2276,6 +2333,8 @@ function bootApp() {
   if (placeInput && placeInput.toLowerCase() !== displayLocationName(userLocation).toLowerCase()) {
     applyLocation();
   }
+
+  startVersionWatch();
 }
 
 if (document.readyState === "loading") {
