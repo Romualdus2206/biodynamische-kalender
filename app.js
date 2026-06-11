@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 
 const CONCLUSIE_KEYWORDS = [
   "kan goed werken",

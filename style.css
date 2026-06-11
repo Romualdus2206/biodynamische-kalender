@@ -489,9 +489,9 @@ body.view-month {
 .wm-view-toggle .view-toggle-btn {
   flex: 1;
   max-width: 130px;
-  border: 2px solid var(--dial-line);
+  border: 2px solid #1a1a1a;
   background: #f5efe4;
-  color: var(--dial-line);
+  color: #1a1a1a;
   padding: 10px 14px;
   font-size: 0.95rem;
   font-weight: 700;
@@ -500,13 +500,15 @@ body.view-month {
   cursor: pointer;
   font-family: inherit;
   touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .day-view-footer .view-toggle-btn.is-active,
 .wm-view-toggle .view-toggle-btn.is-active {
-  background: var(--dial-line);
+  background: #1a1a1a;
   color: #f5efe4;
-  border-color: var(--dial-line);
+  border-color: #1a1a1a;
 }
 
 .month-view.calendar-wrapper {
@@ -790,7 +792,10 @@ body.view-month .month-view.calendar-wrapper {
 }
 
 .modal-body-parchment {
-  background: var(--parchment, #f0e6d6);
+  --parchment: #f0e6d6;
+  --dial-line: #1a1a1a;
+  --dial-toggle-active: #1a1a1a;
+  background: var(--parchment);
   font-family: Georgia, "Times New Roman", serif;
   padding: 8px 10px 12px;
 }
@@ -811,6 +816,10 @@ body.view-month .month-view.calendar-wrapper {
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+.wm-dial-panel[hidden] {
+  display: none !important;
 }
 
 .wm-view-toggle {
