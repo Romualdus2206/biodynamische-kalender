@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.6";
+const APP_VERSION = "1.0.7";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -1713,10 +1713,10 @@ function weatherDetail(weather) {
 function wineAdviceLong(type, weather) {
   let advice = "";
 
-  if (type === "fruit") advice += "Vruchtendag – aromatische en fruitige wijnen openen vaak mooier. ";
-  if (type === "flower") advice += "Bloemdag – elegante, verfijnde wijnen tonen meer nuance. ";
-  if (type === "leaf") advice += "Bladdag – frisse wijnen kunnen wat vlakker overkomen. ";
-  if (type === "root") advice += "Worteldag – tanninerijke wijnen kunnen strenger smaken. ";
+  if (type === "fruit") advice += "Vruchtendag – fruitexpressie; ideaal proefmoment voor rode wijn. ";
+  if (type === "flower") advice += "Bloemdag – aromatiek en elegantie komen mooier naar voren. ";
+  if (type === "leaf") advice += "Bladdag – bladgroei en sappigheid; rode wijn kan vlakker overkomen. ";
+  if (type === "root") advice += "Worteldag – structuur en mineraliteit; tannine kan sterker aanwezig zijn. ";
 
   if (!hasWeatherData(weather)) {
     return advice.trim();
