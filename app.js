@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.10";
+const APP_VERSION = "1.0.11";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -1715,6 +1715,9 @@ function weatherDetail(weather) {
 
 // ===== Advies genereren =====
 
+const COMFORT_WINES_NOTE =
+  "(= zachte, ronde, romige, warme wijnen die prettig zijn bij regen, kou of lage luchtdruk)";
+
 const WINE_STYLE_LABELS = {
   fruitig: "Fruitig",
   aromatisch: "Aromatisch",
@@ -1783,7 +1786,9 @@ function weatherAdviceText(type, weather) {
   const temp = weather.temp;
 
   if (pressure > 1015) advice += "Hoge luchtdruk: wijn opent makkelijker. ";
-  else if (pressure < 1005) advice += "Lage luchtdruk: wijn blijft vaker gesloten. ";
+  else if (pressure < 1005) {
+    advice += "Lage luchtdruk: wijn blijft vaker gesloten; comfortwijnen " + COMFORT_WINES_NOTE + " kunnen prettig zijn. ";
+  }
   else advice += "Gemiddelde luchtdruk: neutrale invloed. ";
 
   if (temp > 22) {
@@ -1791,14 +1796,17 @@ function weatherAdviceText(type, weather) {
     else if (type === "flower") advice += "Warm weer: elegante witte of lichte rode wijn kan prettig zijn. ";
     else advice += "Warm weer: kies liever mineraal/strak dan fruitige rosé. ";
   } else if (temp < 10) {
-    if (type === "root" || type === "flower") advice += "Koud weer: structuur en body komen goed tot hun recht. ";
-    else advice += "Koud weer: vollere wijn kan prettig zijn. ";
+    if (type === "root" || type === "flower") {
+      advice += "Koud weer: structuur en body komen goed tot hun recht; comfortwijnen " + COMFORT_WINES_NOTE + " ook. ";
+    } else {
+      advice += "Koud weer: comfortwijnen " + COMFORT_WINES_NOTE + " of vollere wijn kan prettig zijn. ";
+    }
   } else {
     advice += "Gemiddelde temperatuur: neutrale invloed. ";
   }
 
   if (isRainy(weather)) {
-    advice += "Regenachtig weer: comfortwijnen kunnen extra prettig zijn. ";
+    advice += "Regenachtig weer: comfortwijnen " + COMFORT_WINES_NOTE + " kunnen extra prettig zijn. ";
   }
 
   return advice.trim();
