@@ -1,6 +1,6 @@
 // ===== Basisconfiguratie =====
 
-const APP_VERSION = "1.0.11";
+const APP_VERSION = "1.0.12";
 const VERSION_RELOAD_PARAM = "_rv";
 const VERSION_CHECK_MAX_RELOADS = 2;
 
@@ -107,7 +107,8 @@ function loadWines() {
       { name: "Pommard 2018", grape: "Pinot Noir", region: "Bourgogne", style: "tanninerijk" },
       { name: "Sancerre 2022", grape: "Sauvignon Blanc", region: "Loire", style: "sappig" },
       { name: "Provence Rosé 2023", grape: "Grenache", region: "Provence", style: "fruitig" },
-      { name: "Chablis 2021", grape: "Chardonnay", region: "Bourgogne", style: "mineraal" }
+      { name: "Chablis 2021", grape: "Chardonnay", region: "Bourgogne", style: "mineraal" },
+      { name: "Merlot Réserve 2020", grape: "Merlot", region: "Saint-Émilion", style: "comfort" }
     ];
     saveWines();
     return;
@@ -1725,7 +1726,8 @@ const WINE_STYLE_LABELS = {
   fris: "Fris & licht",
   sappig: "Sappig & groen",
   mineraal: "Mineraal & strak",
-  tanninerijk: "Tanninerijk & krachtig"
+  tanninerijk: "Tanninerijk & krachtig",
+  comfort: "Comfort — rond & romig"
 };
 
 const DAY_GOOD_STYLES = {
@@ -1786,9 +1788,7 @@ function weatherAdviceText(type, weather) {
   const temp = weather.temp;
 
   if (pressure > 1015) advice += "Hoge luchtdruk: wijn opent makkelijker. ";
-  else if (pressure < 1005) {
-    advice += "Lage luchtdruk: wijn blijft vaker gesloten; comfortwijnen " + COMFORT_WINES_NOTE + " kunnen prettig zijn. ";
-  }
+  else if (pressure < 1005) advice += "Lage luchtdruk: wijn blijft vaker gesloten. ";
   else advice += "Gemiddelde luchtdruk: neutrale invloed. ";
 
   if (temp > 22) {
@@ -1797,16 +1797,18 @@ function weatherAdviceText(type, weather) {
     else advice += "Warm weer: kies liever mineraal/strak dan fruitige rosé. ";
   } else if (temp < 10) {
     if (type === "root" || type === "flower") {
-      advice += "Koud weer: structuur en body komen goed tot hun recht; comfortwijnen " + COMFORT_WINES_NOTE + " ook. ";
+      advice += "Koud weer: structuur en body komen goed tot hun recht. ";
     } else {
-      advice += "Koud weer: comfortwijnen " + COMFORT_WINES_NOTE + " of vollere wijn kan prettig zijn. ";
+      advice += "Koud weer: vollere wijn kan prettig zijn. ";
     }
   } else {
     advice += "Gemiddelde temperatuur: neutrale invloed. ";
   }
 
-  if (isRainy(weather)) {
-    advice += "Regenachtig weer: comfortwijnen " + COMFORT_WINES_NOTE + " kunnen extra prettig zijn. ";
+  if (isRainy(weather)) advice += "Regenachtig weer. ";
+
+  if (weatherWantsComfort(weather)) {
+    advice += "Bij dit weer passen comfortwijnen " + COMFORT_WINES_NOTE + " — los van het dagtype-advies. ";
   }
 
   return advice.trim();
@@ -1873,6 +1875,40 @@ function avoidWines(type) {
   return wines.filter(function (w) {
     return avoid.indexOf(w.style) >= 0;
   });
+}
+
+function weatherWantsComfort(weather) {
+  if (!hasWeatherData(weather)) return false;
+  return isRainy(weather) || weather.pressure < 1005 || weather.temp < 10;
+}
+
+function matchComfortWines() {
+  return wines.filter(function (w) {
+    return w.style === "comfort";
+  });
+}
+
+function formatDayWineRecommendations(type) {
+  const matched = matchWines(type);
+  const avoided = avoidWines(type);
+  let html = "";
+  html += matched.length
+    ? "✔ Bij dagtype: " + formatWineList(matched)
+    : "Geen fles die bij dit dagtype past.";
+  if (avoided.length) {
+    html += "<br>✖ Minder geschikt bij dagtype: " + formatWineList(avoided);
+  }
+  return html;
+}
+
+function formatWeatherWineRecommendations(weather) {
+  if (!weatherWantsComfort(weather)) return "";
+  const comfort = matchComfortWines();
+  let html = "☁ Bij dit weer (comfort): ";
+  html += comfort.length
+    ? formatWineList(comfort)
+    : "geen comfortwijn in je voorraad (kies stijl Comfort bij toevoegen).";
+  return html;
 }
 
 function formatWineList(items) {
@@ -1985,11 +2021,10 @@ function renderCalendarDOM(year, month, weatherMap) {
       const range = formatSlotRange(slot);
       const adviceFull = wineAdviceLong(slot.type, weather);
       const conclusion = extractConclusionSentence(adviceFull);
-      const matched = matchWines(slot.type);
-      const avoided = avoidWines(slot.type);
-      let winesHtml = matched.length ? formatWineList(matched) : "Geen passende flessen in je voorraad.";
-      if (avoided.length) {
-        winesHtml += '<br><span class="slot-wines-avoid">Minder geschikt: ' + formatWineList(avoided) + "</span>";
+      let winesHtml = formatDayWineRecommendations(slot.type);
+      const weatherWines = formatWeatherWineRecommendations(weather);
+      if (weatherWines) {
+        winesHtml += '<br><span class="slot-wines-weather">' + weatherWines + "</span>";
       }
 
       html +=
@@ -2088,21 +2123,17 @@ function openDayModal(day, month, year, slots, weather) {
     })
     .join("<hr class=\"modal-slot-divider\">");
 
-  winesEl.innerHTML = slots
+  let winesHtml = "";
+  const weatherWines = formatWeatherWineRecommendations(weather);
+  if (weatherWines) {
+    winesHtml += "<p><strong>Weer</strong><br>" + weatherWines + "</p><hr class=\"modal-slot-divider\">";
+  }
+  winesHtml += slots
     .map(function (s) {
-      const range = formatSlotRange(s);
-      const matched = matchWines(s.type);
-      const avoided = avoidWines(s.type);
-      let html = "<strong>" + range + "</strong><br>";
-      html += matched.length
-        ? "✔ " + formatWineList(matched)
-        : "Geen passende flessen in je voorraad.";
-      if (avoided.length) {
-        html += "<br>✖ Minder geschikt: " + formatWineList(avoided);
-      }
-      return html;
+      return "<p><strong>" + formatSlotRange(s) + "</strong><br>" + formatDayWineRecommendations(s.type) + "</p>";
     })
     .join("<hr class=\"modal-slot-divider\">");
+  winesEl.innerHTML = winesHtml;
 
   openBackdrop("dayModalBackdrop");
 }

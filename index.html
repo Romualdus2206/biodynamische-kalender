@@ -2,19 +2,19 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Biodynamische kalender (v1.0.11)</title>
+  <title>Biodynamische kalender (v1.0.12)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=1.0.11" />
+  <link rel="stylesheet" href="style.css?v=1.0.12" />
 </head>
 <body class="view-month">
 
   <div class="page-header">
     <header class="topbar">
       <div class="topbar-left">
-        <h1>Biodynamische kalender <span class="app-version">(v1.0.11)</span></h1>
+        <h1>Biodynamische kalender <span class="app-version">(v1.0.12)</span></h1>
         <p class="subtitle">Tijdvakken, biodynamische dag en wijnadvies</p>
       </div>
       <button type="button" id="helpBtn" class="icon-btn" title="Uitleg" aria-label="Uitleg">i</button>
@@ -167,7 +167,8 @@
         <div id="dayModalSlots"></div>
         <h3>Wijnadvies per tijdvak</h3>
         <div id="dayModalAdvice"></div>
-        <h3>Aanbevolen flessen per tijdvak</h3>
+        <h3>Flessen uit je voorraad</h3>
+        <p class="modal-hint">Dagtype en weer worden apart gematcht. Comfortwijnen gelden alleen bij regen, kou of lage luchtdruk.</p>
         <div id="dayModalWines"></div>
       </div>
     </div>
@@ -242,6 +243,7 @@
           <li>Zachte rosé — romiger stijl, niet superfris</li>
         </ul>
         <p>Kenmerken: lage tot medium zuren, zachte tannines, rond mondgevoel, romige of warme aroma's, geen scherpe randen, makkelijk drinkbaar.</p>
+        <p>Label comfortwijnen in je voorraad als stijl <strong>Comfort</strong>. Die worden apart van het dagtype voorgesteld — een Sancerre (sappig/strak) past bij een bladdag, maar is geen comfortwijn bij regen.</p>
       </div>
     </div>
   </div>
@@ -388,6 +390,7 @@
               <option value="sappig">Sappig &amp; groen</option>
               <option value="mineraal">Mineraal &amp; strak</option>
               <option value="tanninerijk">Tanninerijk &amp; krachtig</option>
+              <option value="comfort">Comfort — rond &amp; romig</option>
             </select>
           </label>
         </div>
@@ -398,6 +401,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.0.11"></script>
+  <script src="app.js?v=1.0.12"></script>
 </body>
 </html>
