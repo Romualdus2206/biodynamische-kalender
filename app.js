@@ -2158,10 +2158,8 @@ function initEventListeners() {
 function applyAppVersion() {
   const label = "(v" + APP_VERSION + ")";
   document.title = "Biodynamische kalender " + label;
-  const h1 = document.querySelector(".topbar h1");
-  if (h1) {
-    h1.innerHTML = 'Biodynamische kalender <span class="app-version">' + label + "</span>";
-  }
+  const versionEl = document.querySelector(".app-version");
+  if (versionEl) versionEl.textContent = label;
 }
 
 function bootApp() {
