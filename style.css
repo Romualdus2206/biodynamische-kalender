@@ -403,7 +403,7 @@ body.view-month {
 
 .dial-verdict {
   margin: 0;
-  font-size: clamp(2.2rem, 10vw, 3rem);
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: 0.02em;
@@ -419,9 +419,9 @@ body.view-month {
 }
 
 .dial-icon {
-  width: 50px;
-  height: 58px;
-  margin: 4px 0 2px;
+  width: 54px;
+  height: 60px;
+  margin: 2px 0 0;
 }
 
 .dial-icon svg {
@@ -666,6 +666,14 @@ body.view-month .month-view.calendar-wrapper {
   pointer-events: auto;
 }
 
+.backdrop-stack-2 {
+  z-index: 1100;
+}
+
+.backdrop-stack-3 {
+  z-index: 1200;
+}
+
 .modal {
   background: #fff;
   border-radius: 10px;
@@ -738,6 +746,127 @@ body.view-month .month-view.calendar-wrapper {
 .modal-view-or {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.modal-compact {
+  max-width: 360px;
+}
+
+.modal-wine-moment {
+  max-width: 380px;
+  width: 94%;
+  background: var(--parchment, #f0e6d6);
+}
+
+.modal-header-parchment {
+  background: var(--parchment, #f0e6d6);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.modal-body-parchment {
+  background: var(--parchment, #f0e6d6);
+  font-family: Georgia, "Times New Roman", serif;
+  padding: 8px 10px 12px;
+}
+
+.wine-moment-body .dial-wrap {
+  width: min(72vw, 260px);
+  height: min(72vw, 260px);
+  min-height: 220px;
+  margin-top: 4px;
+}
+
+.wine-moment-body .day-view-toolbar {
+  margin-bottom: 6px;
+}
+
+.wm-view-toggle {
+  padding: 8px 0 0;
+  margin-top: 4px;
+}
+
+.wm-view-toggle.view-toggle {
+  display: flex;
+}
+
+.modal-hint {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.field-full {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.field-full select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+  font-size: 0.85rem;
+}
+
+.agenda-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.agenda-tab {
+  flex: 1;
+  border: 1px solid var(--border-soft);
+  background: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.agenda-tab.is-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.agenda-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.agenda-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.78rem;
+  flex: 1;
+  min-width: 5rem;
+}
+
+.agenda-fields input,
+.agenda-fields select {
+  padding: 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+}
+
+.agenda-week-range {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.agenda-week-nav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
 }
 
 .modal-actions {
